@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"bytes"
 	"io"
 	"io/ioutil"
 	"unicode/utf8"
@@ -15,15 +16,14 @@ func NewScanner(r io.Reader) *Scanner {
 	return s
 }
 
-// Exact matches an exact match.
-func (t *Scanner) Exact(s string) bool {
-	return t.While(Exact(s))
-}
-
-// Until moves the cursor forward until the condition matches.
-// Returns true if the cursor moved.
-func (t *Scanner) Until(cond MatcherFunc) bool {
-	return t.While(Not(cond))
+// Match matches the current character with the condition
+// and moves the cursor ahead when it matches.
+func (t *Scanner) Match(cond MatcherFunc) bool {
+	t.Mark()
+	if t.More() && t.Is(cond) {
+		t.Next()
+	}
+	return t.Matched() && t.Save()
 }
 
 // While moves the cursor forward while the condition matches.
@@ -36,10 +36,39 @@ func (t *Scanner) While(cond MatcherFunc) bool {
 	return t.Matched() && t.Save()
 }
 
-// Match matches the current character with the condition
-// and moves the cursor ahead when it matches.
-func (t *Scanner) Match(cond MatcherFunc) bool {
-	return t.While(Once(cond))
+// Until moves the cursor forward until the condition matches.
+// Returns true if the cursor moved.
+func (t *Scanner) Until(cond MatcherFunc) bool {
+	t.Mark()
+	for t.More() && !t.Is(cond) {
+		t.Next()
+	}
+	return t.Matched() && t.Save()
+}
+
+// Find advances the cursor until the string matches.
+func (t *Scanner) Find(s string) bool {
+	t.Mark()
+	for i := bytes.Index(t.data[t.cursor.disp:], []byte(s)); i > 0; i-- {
+		t.Next()
+	}
+	return t.Matched() && t.Save()
+}
+
+// Exact matches a string.
+func (t *Scanner) Exact(s string) bool {
+	t.Mark()
+	if t.More() && bytes.HasPrefix(t.data[t.cursor.disp:], []byte(s)) {
+		for i := len(s); i > 0; i-- {
+			t.Next()
+		}
+	}
+	return t.Matched() && t.Save()
+}
+
+// Is matches the param with the current character.
+func (t *Scanner) Is(cond MatcherFunc) bool {
+	return cond(t.char)
 }
 
 // Next moves the cursor to the next character.
@@ -53,11 +82,6 @@ func (t *Scanner) Next() {
 	r, s := utf8.DecodeRune(t.data[t.cursor.disp:])
 	t.char = r
 	t.size = s
-}
-
-// Is matches the param with the current character.
-func (t *Scanner) Is(cond MatcherFunc) bool {
-	return cond(t.char)
 }
 
 // Mark marks the begining of a token.
@@ -112,38 +136,6 @@ func Any(r ...rune) MatcherFunc {
 			}
 		}
 		return false
-	}
-}
-
-// Not negates a condition.
-func Not(cond MatcherFunc) MatcherFunc {
-	return func(r rune) bool {
-		return !cond(r)
-	}
-}
-
-// Exact tests for an exact match of a string.
-func Exact(str string) MatcherFunc {
-	i := 0
-	return func(r rune) bool {
-		if i == len(str) {
-			return false
-		}
-		c, s := utf8.DecodeRuneInString(str[i:])
-		i += s
-		return r == c
-	}
-}
-
-// Once matches only one time.
-// Useful with While() to force a single match. This is a
-// trick to not repeat the same code in Match() and While().
-// Don't use with Until() since Not(Once) means always.
-func Once(cond MatcherFunc) MatcherFunc {
-	once := false
-	return func(r rune) bool {
-		once = !once
-		return once && cond(r)
 	}
 }
 
