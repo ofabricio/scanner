@@ -1,7 +1,6 @@
 package scanner
 
 import (
-	"fmt"
 	"reflect"
 	"runtime"
 	"strings"
@@ -224,18 +223,19 @@ func TestScannerExactEmpty(t *testing.T) {
 	Equal(t, s.More(), false)
 }
 
-func ExampleScanner() {
+func TestScannerString(t *testing.T) {
 
-	s := NewScanner(strings.NewReader("The quick fox"))
+	s := NewScanner(strings.NewReader("'Hello'"))
 
-	for ; s.While(unicode.IsLetter); s.Exact(" ") {
-		fmt.Println(s.Text())
+	if s.Exact("'") && s.Until(Any('\'')) && s.Exact("'") {
 	}
 
-	// Output:
-	// The
-	// quick
-	// fox
+	token := s.Join(3)
+
+	Equal(t, token.Text, "'Hello'")
+	Equal(t, token.Row, 1)
+	Equal(t, token.Col, 1)
+	Equal(t, s.More(), false)
 }
 
 func Equal(t *testing.T, got, exp interface{}) {
