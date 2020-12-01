@@ -238,6 +238,15 @@ func TestScannerString(t *testing.T) {
 	Equal(t, s.More(), false)
 }
 
+func TestMatcherOnce(t *testing.T) {
+
+	s := NewScanner(strings.NewReader("Hello"))
+
+	s.While(Once(unicode.IsLetter))
+
+	Equal(t, s.Text(), "H")
+}
+
 func Equal(t *testing.T, got, exp interface{}) {
 	if !reflect.DeepEqual(got, exp) {
 		_, fn, line, _ := runtime.Caller(1)
