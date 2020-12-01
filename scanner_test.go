@@ -47,6 +47,32 @@ func TestEmpty(t *testing.T) {
 	Equal(t, s.Col(), 1)
 }
 
+func TestEqual(t *testing.T) {
+
+	s := NewScanner(strings.NewReader("Hello World"))
+
+	Equal(t, s.Equal("Hello"), true)
+
+	Equal(t, s.Matched(), false)
+	Equal(t, s.More(), true)
+	Equal(t, s.Text(), "")
+	Equal(t, s.Row(), 1)
+	Equal(t, s.Col(), 1)
+}
+
+func TestEqualB(t *testing.T) {
+
+	s := NewScanner(strings.NewReader("Hello"))
+
+	Equal(t, s.Equal("Hi"), false)
+
+	Equal(t, s.Matched(), false)
+	Equal(t, s.More(), true)
+	Equal(t, s.Text(), "")
+	Equal(t, s.Row(), 1)
+	Equal(t, s.Col(), 1)
+}
+
 func TestMatch(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("H"))

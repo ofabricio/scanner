@@ -71,7 +71,7 @@ func (t *Scanner) Find(s string) bool {
 // Returns true if the cursor moved.
 func (t *Scanner) Exact(s string) bool {
 	t.Mark()
-	if t.More() && bytes.HasPrefix(t.data[t.cursor.disp:], []byte(s)) {
+	if t.More() && t.Equal(s) {
 		for i := len(s); i > 0; i-- {
 			t.Next()
 		}
@@ -83,6 +83,12 @@ func (t *Scanner) Exact(s string) bool {
 // Is does not move the cursor.
 func (t *Scanner) Is(cond MatcherFunc) bool {
 	return cond(t.char)
+}
+
+// Equal tests if a string matches.
+// Equal does not move the cursor.
+func (t *Scanner) Equal(s string) bool {
+	return bytes.HasPrefix(t.data[t.cursor.disp:], []byte(s))
 }
 
 // Next moves the cursor to the next position.
