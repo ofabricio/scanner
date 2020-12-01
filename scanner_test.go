@@ -169,6 +169,45 @@ func TestUntilEnd(t *testing.T) {
 	Equal(t, s.Col(), 1)
 }
 
+func TestFind(t *testing.T) {
+
+	s := NewScanner(strings.NewReader("There are no uninteresting things, only uninterested people"))
+
+	Equal(t, s.Find("things"), true)
+
+	Equal(t, s.Matched(), true)
+	Equal(t, s.More(), true)
+	Equal(t, s.Text(), "There are no uninteresting ")
+	Equal(t, s.Row(), 1)
+	Equal(t, s.Col(), 1)
+}
+
+func TestFindBegining(t *testing.T) {
+
+	s := NewScanner(strings.NewReader("Hello"))
+
+	Equal(t, s.Find("Hello"), false)
+
+	Equal(t, s.Matched(), false)
+	Equal(t, s.More(), true)
+	Equal(t, s.Text(), "")
+	Equal(t, s.Row(), 1)
+	Equal(t, s.Col(), 1)
+}
+
+func TestFindEnd(t *testing.T) {
+
+	s := NewScanner(strings.NewReader("Hello"))
+
+	Equal(t, s.Find("World"), false)
+
+	Equal(t, s.Matched(), false)
+	Equal(t, s.More(), true)
+	Equal(t, s.Text(), "")
+	Equal(t, s.Row(), 1)
+	Equal(t, s.Col(), 1)
+}
+
 func TestExact(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("Hello"))
@@ -201,32 +240,6 @@ func TestExactB(t *testing.T) {
 	Equal(t, s.Text(), " World")
 	Equal(t, s.Row(), 1)
 	Equal(t, s.Col(), 6)
-}
-
-func TestFind(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("There are no uninteresting things, only uninterested people"))
-
-	Equal(t, s.Find("things"), true)
-
-	Equal(t, s.Matched(), true)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "There are no uninteresting ")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
-}
-
-func TestFindBegining(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("Hello"))
-
-	Equal(t, s.Find("Hello"), false)
-
-	Equal(t, s.Matched(), false)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
 }
 
 func TestString(t *testing.T) {
