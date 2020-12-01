@@ -18,6 +18,7 @@ func NewScanner(r io.Reader) *Scanner {
 
 // Match matches the current character with the condition
 // and moves the cursor ahead when it matches.
+// Returns true if the cursor moved.
 func (t *Scanner) Match(cond MatcherFunc) bool {
 	t.Mark()
 	if t.More() && t.Is(cond) {
@@ -37,6 +38,10 @@ func (t *Scanner) While(cond MatcherFunc) bool {
 }
 
 // Until moves the cursor forward until the condition matches.
+//
+// When trying to Until something at the cursor's position
+// it does not match, ie, the cursor doesn't move.
+//
 // Returns true if the cursor moved.
 func (t *Scanner) Until(cond MatcherFunc) bool {
 	t.Mark()
@@ -47,6 +52,13 @@ func (t *Scanner) Until(cond MatcherFunc) bool {
 }
 
 // Find advances the cursor until the string matches.
+//
+// It is like Until() bur for string.
+//
+// When trying to find a string at the cursor's position
+// it does not match, ie, the cursor does not move.
+//
+// Returns true if the cursor moved.
 func (t *Scanner) Find(s string) bool {
 	t.Mark()
 	for i := bytes.Index(t.data[t.cursor.disp:], []byte(s)); i > 0; i-- {
@@ -56,6 +68,7 @@ func (t *Scanner) Find(s string) bool {
 }
 
 // Exact matches a string.
+// Returns true if the cursor moved.
 func (t *Scanner) Exact(s string) bool {
 	t.Mark()
 	if t.More() && bytes.HasPrefix(t.data[t.cursor.disp:], []byte(s)) {
@@ -66,12 +79,13 @@ func (t *Scanner) Exact(s string) bool {
 	return t.Matched() && t.Save()
 }
 
-// Is matches the param with the current character.
+// Is tests the current character at cursor's position.
+// Is does not move the cursor.
 func (t *Scanner) Is(cond MatcherFunc) bool {
 	return cond(t.char)
 }
 
-// Next moves the cursor to the next character.
+// Next moves the cursor to the next position.
 func (t *Scanner) Next() {
 	if t.char == '\n' {
 		t.cursor.row++
@@ -112,7 +126,7 @@ func (t *Scanner) Join(count int) Token {
 	return Token{Text: txt, Row: m.row, Col: m.col}
 }
 
-// Text returns the current token.
+// Text returns the current matched token.
 func (t *Scanner) Text() string {
 	return string(t.data[t.mark.disp:t.cursor.disp])
 }
