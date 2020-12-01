@@ -18,24 +18,24 @@ func Example() {
 	s := NewScanner(strings.NewReader(src))
 
 	for s.More() {
-		s.While(unicode.IsSpace)
+		s.WhileCond(unicode.IsSpace)
 
-		if s.While(unicode.IsLetter) {
+		if s.WhileCond(unicode.IsLetter) {
 			fmt.Println(s.Text())
 			continue
 		}
 
-		if s.While(unicode.IsNumber) {
+		if s.WhileCond(unicode.IsNumber) {
 			fmt.Println(s.Text())
 			continue
 		}
 
-		if s.Exact("'") && s.Until(Any('\'')) && s.Exact("'") {
+		if s.Match("'") && s.Until("'") && s.Match("'") {
 			fmt.Println(s.Join(3).Text)
 			continue
 		}
 
-		if s.Match(unicode.IsPunct) || s.Match(unicode.IsSymbol) {
+		if s.MatchCond(unicode.IsPunct) || s.MatchCond(unicode.IsSymbol) {
 			fmt.Println(s.Text())
 			continue
 		}
@@ -62,7 +62,7 @@ func ExampleScanner() {
 
 	s := NewScanner(strings.NewReader("The quick fox"))
 
-	for ; s.While(unicode.IsLetter); s.Exact(" ") {
+	for ; s.WhileCond(unicode.IsLetter); s.Match(" ") {
 		fmt.Println(s.Text())
 	}
 

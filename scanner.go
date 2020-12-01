@@ -16,79 +16,85 @@ func NewScanner(r io.Reader) *Scanner {
 	return s
 }
 
-// Match matches the current character with the condition
-// and moves the cursor ahead when it matches.
-// Returns true if the cursor moved.
-func (t *Scanner) Match(cond MatcherFunc) bool {
-	t.Mark()
-	if t.More() && t.Is(cond) {
-		t.Next()
-	}
-	return t.Matched() && t.Save()
-}
-
-// While moves the cursor forward while the condition matches.
-// Returns true if the cursor moved.
-func (t *Scanner) While(cond MatcherFunc) bool {
-	t.Mark()
-	for t.More() && t.Is(cond) {
-		t.Next()
-	}
-	return t.Matched() && t.Save()
-}
-
-// Until moves the cursor forward until the condition matches.
-//
-// When trying to Until something at the cursor's position
-// it does not match, ie, the cursor doesn't move.
-//
-// Returns true if the cursor moved.
-func (t *Scanner) Until(cond MatcherFunc) bool {
-	t.Mark()
-	for t.More() && !t.Is(cond) {
-		t.Next()
-	}
-	return t.Matched() && t.Save()
-}
-
-// Find advances the cursor until the string matches.
-//
-// It is like Until() bur for string.
-//
-// When trying to find a string at the cursor's position
+// Until advances the cursor until the string matches.
+// When trying to match a string at the cursor's position
 // it does not match, ie, the cursor does not move.
-//
 // Returns true if the cursor moved.
-func (t *Scanner) Find(s string) bool {
+func (t *Scanner) Until(s string) bool {
 	t.Mark()
-	for i := bytes.Index(t.data[t.cursor.disp:], []byte(s)); i > 0; i-- {
+	for t.More() && !t.Equal(s) {
 		t.Next()
 	}
 	return t.Matched() && t.Save()
 }
 
-// Exact matches a string.
+// UntilCond advances the cursor until the condition matches.
+// UntilCond is like Until bur for a custom condition.
+// When trying to UntilCond something at the cursor's position
+// it does not match, ie, the cursor doesn't move.
 // Returns true if the cursor moved.
-func (t *Scanner) Exact(s string) bool {
+func (t *Scanner) UntilCond(cond MatcherFunc) bool {
 	t.Mark()
-	if t.More() && t.Equal(s) {
-		for i := len(s); i > 0; i-- {
+	for t.More() && !t.EqualCond(cond) {
+		t.Next()
+	}
+	return t.Matched() && t.Save()
+}
+
+// While advances the cursor while the string matches.
+// Returns true if the cursor moved.
+func (t *Scanner) While(s string) bool {
+	t.Mark()
+	for t.More() && t.Equal(s) {
+		for range s {
 			t.Next()
 		}
 	}
 	return t.Matched() && t.Save()
 }
 
-// Is tests the current character at cursor's position.
-// Is does not move the cursor.
-func (t *Scanner) Is(cond MatcherFunc) bool {
-	return cond(t.char)
+// WhileCond advances the cursor while the condition matches.
+// Returns true if the cursor moved.
+func (t *Scanner) WhileCond(cond MatcherFunc) bool {
+	t.Mark()
+	for t.More() && t.EqualCond(cond) {
+		t.Next()
+	}
+	return t.Matched() && t.Save()
+}
+
+// Match advances the cursor if the string matches.
+// Returns true if the cursor moved.
+func (t *Scanner) Match(s string) bool {
+	t.Mark()
+	if t.More() && t.Equal(s) {
+		for range s {
+			t.Next()
+		}
+	}
+	return t.Matched() && t.Save()
+}
+
+// MatchCond advances the cursor if the condition matches.
+// Returns true if the cursor moved.
+func (t *Scanner) MatchCond(cond MatcherFunc) bool {
+	t.Mark()
+	if t.More() && t.EqualCond(cond) {
+		t.Next()
+	}
+	return t.Matched() && t.Save()
 }
 
 // Equal tests if a string matches.
 // Equal does not move the cursor.
 func (t *Scanner) Equal(s string) bool {
 	return bytes.HasPrefix(t.data[t.cursor.disp:], []byte(s))
+}
+
+// EqualCond tests the current character at cursor's position.
+// EqualCond does not move the cursor.
+func (t *Scanner) EqualCond(cond MatcherFunc) bool {
+	return cond(t.char)
 }
 
 // Next moves the cursor to the next position.
