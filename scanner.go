@@ -10,7 +10,7 @@ import (
 // NewScanner creates a new scanner.
 func NewScanner(r io.Reader) *Scanner {
 	data, _ := ioutil.ReadAll(r)
-	s := &Scanner{data: data, cursor: Mark{row: 1}}
+	s := &Scanner{data: data, cursor: cursor{Row: 1}}
 	s.Next()
 	s.Mark()
 	return s
@@ -25,7 +25,7 @@ func (t *Scanner) Until(s string) bool {
 	for t.More() && !t.Equal(s) {
 		t.Next()
 	}
-	return t.Matched() && t.Save()
+	return t.Matched()
 }
 
 // UntilCond advances the cursor until the condition matches.
@@ -38,7 +38,7 @@ func (t *Scanner) UntilCond(cond MatcherFunc) bool {
 	for t.More() && !t.EqualCond(cond) {
 		t.Next()
 	}
-	return t.Matched() && t.Save()
+	return t.Matched()
 }
 
 // While advances the cursor while the string matches.
@@ -50,7 +50,7 @@ func (t *Scanner) While(s string) bool {
 			t.Next()
 		}
 	}
-	return t.Matched() && t.Save()
+	return t.Matched()
 }
 
 // WhileCond advances the cursor while the condition matches.
@@ -60,7 +60,7 @@ func (t *Scanner) WhileCond(cond MatcherFunc) bool {
 	for t.More() && t.EqualCond(cond) {
 		t.Next()
 	}
-	return t.Matched() && t.Save()
+	return t.Matched()
 }
 
 // Match advances the cursor if the string matches.
@@ -72,7 +72,7 @@ func (t *Scanner) Match(s string) bool {
 			t.Next()
 		}
 	}
-	return t.Matched() && t.Save()
+	return t.Matched()
 }
 
 // MatchCond advances the cursor if the condition matches.
@@ -82,7 +82,7 @@ func (t *Scanner) MatchCond(cond MatcherFunc) bool {
 	if t.More() && t.EqualCond(cond) {
 		t.Next()
 	}
-	return t.Matched() && t.Save()
+	return t.Matched()
 }
 
 // Equal tests if a string matches.
@@ -100,10 +100,10 @@ func (t *Scanner) EqualCond(cond MatcherFunc) bool {
 // Next moves the cursor to the next position.
 func (t *Scanner) Next() {
 	if t.char == '\n' {
-		t.cursor.row++
-		t.cursor.col = 0
+		t.cursor.Row++
+		t.cursor.Col = 0
 	}
-	t.cursor.col++
+	t.cursor.Col++
 	t.cursor.disp += t.size
 	r, s := utf8.DecodeRune(t.data[t.cursor.disp:])
 	t.char = r
@@ -111,8 +111,10 @@ func (t *Scanner) Next() {
 }
 
 // Mark marks the begining of a token.
-func (t *Scanner) Mark() {
-	t.mark = t.cursor
+func (t *Scanner) Mark() Mark {
+	t.mark.cursor = t.cursor
+	t.mark.scan = t
+	return t.mark
 }
 
 // More tells if the scanner still has data ahead of the cursor.
@@ -125,32 +127,24 @@ func (t *Scanner) Matched() bool {
 	return t.cursor.disp-t.mark.disp > 0
 }
 
-// Save saves the current mark.
-func (t *Scanner) Save() bool {
-	t.marks = append(t.marks, t.mark)
-	return true
-}
-
-// Join joins the last count tokens.
-func (t *Scanner) Join(count int) Token {
-	m := t.marks[len(t.marks)-count]
-	txt := string(t.data[m.disp:t.cursor.disp])
-	return Token{Text: txt, Row: m.row, Col: m.col}
+// Left tests if the left side of a marker matches a string.
+func (t *Scanner) Left(s string) bool {
+	return t.mark.Left(s)
 }
 
 // Text returns the current matched token.
 func (t *Scanner) Text() string {
-	return string(t.data[t.mark.disp:t.cursor.disp])
+	return t.mark.Text()
 }
 
-// Col returns the current cursor column.
+// Col returns the column of the current match.
 func (t *Scanner) Col() int {
-	return t.mark.col
+	return t.mark.Col
 }
 
-// Row returns the current cursor line.
+// Row returns the line number of the current match.
 func (t *Scanner) Row() int {
-	return t.cursor.row
+	return t.mark.Row
 }
 
 // Any tests if any character matches.
@@ -172,17 +166,9 @@ type Scanner struct {
 	char rune // Current character.
 	size int  // Current character size.
 
-	cursor Mark
+	cursor cursor
 
-	mark  Mark
-	marks []Mark
-}
-
-// Token is a token.
-type Token struct {
-	Row  int
-	Col  int
-	Text string
+	mark Mark
 }
 
 // MatcherFunc is a matcher function.
@@ -191,7 +177,23 @@ type MatcherFunc func(rune) bool
 // Mark is a mark in the scanner.
 // Each time a token matches a mark is set at its begining.
 type Mark struct {
+	cursor
+	scan *Scanner
+}
+
+type cursor struct {
 	disp int // Displacement/Offset/Cursor/CurrentIndex.
-	row  int // Mark line.
-	col  int // Mark column.
+	Row  int // Cursor line.
+	Col  int // Cursor column.
+}
+
+// Text returns a token starting from a mark.
+func (t Mark) Text() string {
+	return string(t.scan.data[t.disp:t.scan.cursor.disp])
+}
+
+// Left tests if the left side of a marker matches a string.
+func (t Mark) Left(s string) bool {
+	d := t.scan.data[:t.disp]
+	return len(d) != 0 && bytes.HasSuffix(d, []byte(s))
 }

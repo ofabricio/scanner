@@ -1,9 +1,11 @@
-package scanner
+package scanner_test
 
 import (
 	"fmt"
 	"strings"
 	"unicode"
+
+	"github.com/ofabricio/scanner"
 )
 
 func Example() {
@@ -15,10 +17,13 @@ func Example() {
 		}
 	`
 
-	s := NewScanner(strings.NewReader(src))
+	s := scanner.NewScanner(strings.NewReader(src))
 
 	for s.More() {
-		s.WhileCond(unicode.IsSpace)
+
+		if s.WhileCond(unicode.IsSpace) {
+			continue
+		}
 
 		if s.WhileCond(unicode.IsLetter) {
 			fmt.Println(s.Text())
@@ -30,8 +35,9 @@ func Example() {
 			continue
 		}
 
+		m := s.Mark()
 		if s.Match("'") && s.Until("'") && s.Match("'") {
-			fmt.Println(s.Join(3).Text)
+			fmt.Println(m.Text())
 			continue
 		}
 
@@ -40,7 +46,6 @@ func Example() {
 			continue
 		}
 
-		s.Next()
 	}
 
 	// Output:
@@ -58,9 +63,49 @@ func Example() {
 	// }
 }
 
+func Example_validating_strings() {
+
+	src := `
+		a = 'Hello World
+		b = 'Hi''There'
+	`
+
+	s := scanner.NewScanner(strings.NewReader(src))
+
+	for s.More() {
+
+		if s.WhileCond(unicode.IsSpace) {
+			continue
+		}
+
+		if s.WhileCond(unicode.IsLetter) || s.Match("=") {
+			fmt.Println(s.Text())
+			continue
+		}
+
+		m := s.Mark()
+
+		if s.Match("'") && s.UntilCond(scanner.Any('\'', '\n')) && s.Match("'") && !m.Left("'") {
+			fmt.Println(m.Text())
+			continue
+		}
+
+		fmt.Println("INVALID", m.Text())
+	}
+
+	// Output:
+	// a
+	// =
+	// INVALID 'Hello World
+	// b
+	// =
+	// 'Hi'
+	// INVALID 'There'
+}
+
 func ExampleScanner() {
 
-	s := NewScanner(strings.NewReader("The quick fox"))
+	s := scanner.NewScanner(strings.NewReader("The quick fox"))
 
 	for ; s.WhileCond(unicode.IsLetter); s.Match(" ") {
 		fmt.Println(s.Text())

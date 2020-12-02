@@ -280,15 +280,32 @@ func TestString(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("'Hello'"))
 
+	m := s.Mark()
 	if s.Match("'") && s.Until("'") && s.Match("'") {
 	}
 
-	token := s.Join(3)
-
 	Equal(t, s.More(), false)
-	Equal(t, token.Text, "'Hello'")
-	Equal(t, token.Row, 1)
-	Equal(t, token.Col, 1)
+	Equal(t, m.Text(), "'Hello'")
+	Equal(t, m.Row, 1)
+	Equal(t, m.Col, 1)
+}
+
+func TestBorder(t *testing.T) {
+
+	s := NewScanner(strings.NewReader("He-Man"))
+
+	s.Match("He-")
+	m := s.Mark()
+	s.Match("Man")
+	Equal(t, m.Left("-"), true)
+}
+
+func TestBorderB(t *testing.T) {
+
+	s := NewScanner(strings.NewReader("Hello"))
+
+	m := s.Mark()
+	Equal(t, m.Left("a"), false)
 }
 
 func TestMatcherAny(t *testing.T) {
