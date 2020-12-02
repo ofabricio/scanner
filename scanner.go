@@ -121,7 +121,7 @@ func (t *Scanner) More() bool {
 
 // Moved reports whether there is a match or not.
 func (t *Scanner) Moved() bool {
-	return t.cursor.disp-t.mark.disp > 0
+	return t.cursor.disp > t.mark.disp
 }
 
 // Left tests if the left side of a marker matches a string.
