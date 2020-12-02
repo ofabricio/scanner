@@ -304,7 +304,7 @@ func TestStringEmpty(t *testing.T) {
 	Equal(t, m.Col, 1)
 }
 
-func TestBorder(t *testing.T) {
+func TestMarkLeft(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("He-Man"))
 
@@ -314,7 +314,7 @@ func TestBorder(t *testing.T) {
 	Equal(t, m.Left("-"), true)
 }
 
-func TestBorderB(t *testing.T) {
+func TestMarkLeftB(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("Hello"))
 
