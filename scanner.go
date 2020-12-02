@@ -191,6 +191,5 @@ func (t Mark) Text() string {
 
 // Left tests if the left side of a marker matches a string.
 func (t Mark) Left(s string) bool {
-	d := t.scan.data[:t.disp]
-	return len(d) != 0 && bytes.HasSuffix(d, []byte(s))
+	return bytes.HasSuffix(t.scan.data[:t.disp], []byte(s))
 }
