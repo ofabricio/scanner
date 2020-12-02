@@ -17,28 +17,25 @@ func NewScanner(r io.Reader) *Scanner {
 }
 
 // Until advances the cursor until the string matches.
-// When trying to match a string at the cursor's position
-// it does not match, ie, the cursor does not move.
-// Returns true if the cursor moved.
+// Until always return true. To know if Until moved
+// the cursor check for Moved() after Until.
 func (t *Scanner) Until(s string) bool {
 	t.Mark()
 	for t.More() && !t.Equal(s) {
 		t.Next()
 	}
-	return t.Matched()
+	return true
 }
 
 // UntilCond advances the cursor until the condition matches.
-// UntilCond is like Until bur for a custom condition.
-// When trying to UntilCond something at the cursor's position
-// it does not match, ie, the cursor doesn't move.
-// Returns true if the cursor moved.
+// UntilCond always return true. To know if Until moved
+// the cursor check for Moved() after Until.
 func (t *Scanner) UntilCond(cond MatcherFunc) bool {
 	t.Mark()
 	for t.More() && !t.EqualCond(cond) {
 		t.Next()
 	}
-	return t.Matched()
+	return true
 }
 
 // While advances the cursor while the string matches.
@@ -50,7 +47,7 @@ func (t *Scanner) While(s string) bool {
 			t.Next()
 		}
 	}
-	return t.Matched()
+	return t.Moved()
 }
 
 // WhileCond advances the cursor while the condition matches.
@@ -60,7 +57,7 @@ func (t *Scanner) WhileCond(cond MatcherFunc) bool {
 	for t.More() && t.EqualCond(cond) {
 		t.Next()
 	}
-	return t.Matched()
+	return t.Moved()
 }
 
 // Match advances the cursor if the string matches.
@@ -72,7 +69,7 @@ func (t *Scanner) Match(s string) bool {
 			t.Next()
 		}
 	}
-	return t.Matched()
+	return t.Moved()
 }
 
 // MatchCond advances the cursor if the condition matches.
@@ -82,7 +79,7 @@ func (t *Scanner) MatchCond(cond MatcherFunc) bool {
 	if t.More() && t.EqualCond(cond) {
 		t.Next()
 	}
-	return t.Matched()
+	return t.Moved()
 }
 
 // Equal tests if a string matches.
@@ -122,8 +119,8 @@ func (t *Scanner) More() bool {
 	return t.cursor.disp < len(t.data)
 }
 
-// Matched reports whether there is a match or not.
-func (t *Scanner) Matched() bool {
+// Moved reports whether there is a match or not.
+func (t *Scanner) Moved() bool {
 	return t.cursor.disp-t.mark.disp > 0
 }
 
