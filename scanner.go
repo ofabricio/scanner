@@ -24,7 +24,7 @@ func (t *Scanner) Until(s string) bool {
 	for t.More() && !t.Equal(s) {
 		t.Next()
 	}
-	return true
+	return t.Moved() || true
 }
 
 // UntilCond advances the cursor until the condition matches.
@@ -35,7 +35,7 @@ func (t *Scanner) UntilCond(cond MatcherFunc) bool {
 	for t.More() && !t.EqualCond(cond) {
 		t.Next()
 	}
-	return true
+	return t.Moved() || true
 }
 
 // While advances the cursor while the string matches.
