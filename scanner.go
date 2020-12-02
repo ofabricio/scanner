@@ -43,9 +43,7 @@ func (t *Scanner) UntilCond(cond MatcherFunc) bool {
 func (t *Scanner) While(s string) bool {
 	t.Mark()
 	for t.More() && t.Equal(s) {
-		for range s {
-			t.Next()
-		}
+		t.next(len(s))
 	}
 	return t.Moved()
 }
@@ -65,9 +63,7 @@ func (t *Scanner) WhileCond(cond MatcherFunc) bool {
 func (t *Scanner) Match(s string) bool {
 	t.Mark()
 	if t.More() && t.Equal(s) {
-		for range s {
-			t.Next()
-		}
+		t.next(len(s))
 	}
 	return t.Moved()
 }
@@ -92,6 +88,14 @@ func (t *Scanner) Equal(s string) bool {
 // EqualCond does not move the cursor.
 func (t *Scanner) EqualCond(cond MatcherFunc) bool {
 	return cond(t.char)
+}
+
+// next moves the cursor by n runes.
+func (t *Scanner) next(n int) {
+	for n > 0 {
+		n--
+		t.Next()
+	}
 }
 
 // Next moves the cursor to the next position.
