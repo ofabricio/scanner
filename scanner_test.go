@@ -129,11 +129,11 @@ func TestUntil(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("There are no uninteresting things, only uninterested people"))
 
-	Equal(t, s.Until("things"), true)
+	Equal(t, s.Until("uninterested"), true)
 
 	Equal(t, s.Moved(), true)
 	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "There are no uninteresting ")
+	Equal(t, s.Text(), "There are no uninteresting things, only ")
 	Equal(t, s.Row(), 1)
 	Equal(t, s.Col(), 1)
 }
@@ -179,9 +179,9 @@ func TestUntilCond(t *testing.T) {
 
 func TestUntilCondStart(t *testing.T) {
 
-	s := NewScanner(strings.NewReader("Hello"))
+	s := NewScanner(strings.NewReader("123Hello"))
 
-	Equal(t, s.UntilCond(Any('H')), true)
+	Equal(t, s.UntilCond(unicode.IsDigit), true)
 
 	Equal(t, s.Moved(), false)
 	Equal(t, s.More(), true)
@@ -192,9 +192,9 @@ func TestUntilCondStart(t *testing.T) {
 
 func TestUntilCondB(t *testing.T) {
 
-	s := NewScanner(strings.NewReader("Hello! World."))
+	s := NewScanner(strings.NewReader("Hello,World "))
 
-	Equal(t, s.UntilCond(Any('!')), true)
+	Equal(t, s.UntilCond(unicode.IsPunct), true)
 
 	Equal(t, s.Moved(), true)
 	Equal(t, s.More(), true)
@@ -202,11 +202,11 @@ func TestUntilCondB(t *testing.T) {
 	Equal(t, s.Row(), 1)
 	Equal(t, s.Col(), 1)
 
-	Equal(t, s.UntilCond(Any('.')), true)
+	Equal(t, s.UntilCond(unicode.IsSpace), true)
 
 	Equal(t, s.Moved(), true)
 	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "! World")
+	Equal(t, s.Text(), ",World")
 	Equal(t, s.Row(), 1)
 	Equal(t, s.Col(), 6)
 }
@@ -215,7 +215,7 @@ func TestUntilCondEnd(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("Hello"))
 
-	Equal(t, s.UntilCond(Any('!')), true)
+	Equal(t, s.UntilCond(unicode.IsPunct), true)
 
 	Equal(t, s.Moved(), true)
 	Equal(t, s.More(), false)
