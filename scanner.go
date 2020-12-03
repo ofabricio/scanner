@@ -69,9 +69,8 @@ func (t *Scanner) String(r string) bool {
 	m := t.Mark()
 	if t.Match(r) && t.untilEsc(r) && t.Match(r) {
 		t.mark = m
-		return true
 	}
-	return false
+	return t.Moved()
 }
 
 // untilEsc is a Until that escapes r. Example:
