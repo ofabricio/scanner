@@ -19,17 +19,23 @@ func NewScanner(r io.Reader) *Scanner {
 // Until advances the cursor until the string matches.
 // Until always return true. To know if Until moved
 // the cursor check for Moved() after Until.
-func (t *Scanner) Until(s string) bool {
+func (t *Scanner) Until(s ...string) bool {
+	any := func() bool {
+		for _, ss := range s {
+			if t.Equal(ss) {
+				return true
+			}
+		}
+		return false
+	}
 	t.Mark()
-	for t.More() && !t.Equal(s) {
+	for t.More() && !any() {
 		t.Next()
 	}
 	return t.Moved() || true
 }
 
-// UntilCond advances the cursor until the condition matches.
-// UntilCond always return true. To know if Until moved
-// the cursor check for Moved() after Until.
+// UntilCond is like Until.
 func (t *Scanner) UntilCond(cond MatcherFunc) bool {
 	t.Mark()
 	for t.More() && !t.EqualCond(cond) {
@@ -48,8 +54,7 @@ func (t *Scanner) While(s string) bool {
 	return t.Moved()
 }
 
-// WhileCond advances the cursor while the condition matches.
-// Returns true if the cursor moved.
+// WhileCond is like While.
 func (t *Scanner) WhileCond(cond MatcherFunc) bool {
 	t.Mark()
 	for t.More() && t.EqualCond(cond) {
@@ -68,8 +73,7 @@ func (t *Scanner) Match(s string) bool {
 	return t.Moved()
 }
 
-// MatchCond advances the cursor if the condition matches.
-// Returns true if the cursor moved.
+// MatchCond is like Match.
 func (t *Scanner) MatchCond(cond MatcherFunc) bool {
 	t.Mark()
 	if t.More() && t.EqualCond(cond) {
@@ -84,10 +88,17 @@ func (t *Scanner) Equal(s string) bool {
 	return bytes.HasPrefix(t.data[t.cursor.disp:], []byte(s))
 }
 
-// EqualCond tests the current character at cursor's position.
-// EqualCond does not move the cursor.
+// EqualCond is like Equal.
 func (t *Scanner) EqualCond(cond MatcherFunc) bool {
 	return cond(t.char)
+}
+
+// Scan runs a scan function.
+// You can use this to provide your own scanner implementation.
+func (t *Scanner) Scan(fn ScanFunc) bool {
+	t.Mark()
+	fn(t)
+	return t.Moved()
 }
 
 // next moves the cursor by n runes.
@@ -148,18 +159,6 @@ func (t *Scanner) Row() int {
 	return t.mark.Row
 }
 
-// Any tests if any character matches.
-func Any(r ...rune) MatcherFunc {
-	return func(ru rune) bool {
-		for _, v := range r {
-			if ru == v {
-				return true
-			}
-		}
-		return false
-	}
-}
-
 // Scanner is a scanner.
 type Scanner struct {
 	data []byte
@@ -171,9 +170,6 @@ type Scanner struct {
 
 	mark Mark
 }
-
-// MatcherFunc is a matcher function.
-type MatcherFunc func(rune) bool
 
 // Mark is a mark in the scanner.
 // Each time a token matches a mark is set at its begining.
@@ -197,3 +193,9 @@ func (t Mark) Text() string {
 func (t Mark) Left(s string) bool {
 	return bytes.HasSuffix(t.scan.data[:t.disp], []byte(s))
 }
+
+// MatcherFunc is a matcher function.
+type MatcherFunc func(rune) bool
+
+// ScanFunc is a scan function useful for customizing the scanner.
+type ScanFunc func(*Scanner)

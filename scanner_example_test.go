@@ -85,7 +85,7 @@ func Example_validating_strings() {
 
 		m := s.Mark()
 
-		if s.Match("'") && s.UntilCond(scanner.Any('\'', '\n')) && s.Match("'") && !m.Left("'") {
+		if s.Match("'") && s.Until("'", "\n") && s.Match("'") && !m.Left("'") {
 			fmt.Println(m.Text())
 			continue
 		}

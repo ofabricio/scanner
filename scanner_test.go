@@ -322,15 +322,6 @@ func TestMarkLeftB(t *testing.T) {
 	Equal(t, m.Left("a"), false)
 }
 
-func TestMatcherAny(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("banana"))
-
-	s.WhileCond(Any('b', 'a', 'n'))
-
-	Equal(t, s.Text(), "banana")
-}
-
 func Equal(t *testing.T, got, exp interface{}) {
 	if !reflect.DeepEqual(got, exp) {
 		_, fn, line, _ := runtime.Caller(1)
