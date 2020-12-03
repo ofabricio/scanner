@@ -63,6 +63,27 @@ func (t *Scanner) WhileCond(cond MatcherFunc) bool {
 	return t.Moved()
 }
 
+// String matches a string like 'Hi' if r is "'".
+// This default implementation does not scans multiline strings.
+func (t *Scanner) String(r string) bool {
+	m := t.Mark()
+	if t.Match(r) && t.untilEsc(r) && t.Match(r) {
+		t.mark = m
+		return true
+	}
+	return false
+}
+
+// untilEsc is a Until that escapes r. Example:
+// If r == "'" then 'He\'llo' results in 'He\'llo' instead of 'He\'.
+func (t *Scanner) untilEsc(r string) bool {
+	m := t.Mark()
+	for t.Until(r, "\n") && t.Mark().Left("\\") && t.Match(r) {
+		t.mark = m
+	}
+	return t.Moved() || true
+}
+
 // Match advances the cursor if the string matches.
 // Returns true if the cursor moved.
 func (t *Scanner) Match(s string) bool {
@@ -184,6 +205,12 @@ type cursor struct {
 	Col  int // Cursor column.
 }
 
+// MatcherFunc is a matcher function.
+type MatcherFunc func(rune) bool
+
+// ScanFunc is a scan function useful for customizing the scanner.
+type ScanFunc func(*Scanner)
+
 // Text returns a token starting from a mark.
 func (t Mark) Text() string {
 	return string(t.scan.data[t.disp:t.scan.cursor.disp])
@@ -192,27 +219,4 @@ func (t Mark) Text() string {
 // Left tests if the left side of a marker matches a string.
 func (t Mark) Left(s string) bool {
 	return bytes.HasSuffix(t.scan.data[:t.disp], []byte(s))
-}
-
-// MatcherFunc is a matcher function.
-type MatcherFunc func(rune) bool
-
-// ScanFunc is a scan function useful for customizing the scanner.
-type ScanFunc func(*Scanner)
-
-func (t *Scanner) String(r string) bool {
-	m := t.Mark()
-	if t.Match(r) && t.UntilEsc(r) && t.Match(r) {
-		t.mark = m
-		return true
-	}
-	return false
-}
-
-func (t *Scanner) UntilEsc(r string) bool {
-	m := t.Mark()
-	for t.Until(r, "\n") && t.Mark().Left("\\") && t.Match(r) {
-	}
-	t.mark = m
-	return t.Moved() || true
 }
