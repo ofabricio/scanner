@@ -280,28 +280,38 @@ func TestString(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("'Hello'"))
 
-	m := s.Mark()
-	if s.Match("'") && s.Until("'") && s.Match("'") {
-	}
+	Equal(t, s.String("'"), true)
 
 	Equal(t, s.More(), false)
-	Equal(t, m.Text(), "'Hello'")
-	Equal(t, m.Row, 1)
-	Equal(t, m.Col, 1)
+	Equal(t, s.Text(), "'Hello'")
+	Equal(t, s.Row(), 1)
+	Equal(t, s.Col(), 1)
 }
 
 func TestStringEmpty(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("''"))
 
-	m := s.Mark()
-	if s.Match("'") && s.Until("'") && s.Match("'") {
-	}
+	Equal(t, s.String("'"), true)
 
+	Equal(t, s.Moved(), true)
 	Equal(t, s.More(), false)
-	Equal(t, m.Text(), "''")
-	Equal(t, m.Row, 1)
-	Equal(t, m.Col, 1)
+	Equal(t, s.Text(), "''")
+	Equal(t, s.Row(), 1)
+	Equal(t, s.Col(), 1)
+}
+
+func TestStringEscape(t *testing.T) {
+
+	s := NewScanner(strings.NewReader(`'\'Hello\''`))
+
+	Equal(t, s.String("'"), true)
+
+	Equal(t, s.Moved(), true)
+	Equal(t, s.More(), false)
+	Equal(t, s.Text(), `'\'Hello\''`)
+	Equal(t, s.Row(), 1)
+	Equal(t, s.Col(), 1)
 }
 
 func TestMarkLeft(t *testing.T) {

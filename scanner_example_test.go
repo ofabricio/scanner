@@ -116,3 +116,63 @@ func ExampleScanner() {
 	// quick
 	// fox
 }
+
+func Example_string_escape() {
+
+	src := `
+		'Apple
+		'Apple'
+		'\'Apple\''
+		'\'Apple'
+		'Apple\''
+		'Apple \'Grape\' Mango'
+		'Apple \' Grape'
+		''
+		'\''
+		'\'\''
+
+		"Apple
+		"Apple"
+		"\"Grape\""
+		"\"Grape"
+		"Grape\""
+		"Apple \"Grape\" Mango"
+		"Apple \" Grape"
+		""
+		"\""
+		"\"\""
+	`
+
+	s := scanner.NewScanner(strings.NewReader(src))
+
+	for s.WhileCond(unicode.IsSpace) && s.More() {
+		m := s.Mark()
+		if s.String("'") || s.String("\"") {
+			fmt.Println(s.Text())
+		} else {
+			fmt.Println("INVALID", m.Text())
+		}
+	}
+
+	// Output:
+	// INVALID 'Apple
+	// 'Apple'
+	// '\'Apple\''
+	// '\'Apple'
+	// 'Apple\''
+	// 'Apple \'Grape\' Mango'
+	// 'Apple \' Grape'
+	// ''
+	// '\''
+	// '\'\''
+	// INVALID "Apple
+	// "Apple"
+	// "\"Grape\""
+	// "\"Grape"
+	// "Grape\""
+	// "Apple \"Grape\" Mango"
+	// "Apple \" Grape"
+	// ""
+	// "\""
+	// "\"\""
+}

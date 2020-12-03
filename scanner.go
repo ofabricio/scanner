@@ -199,3 +199,20 @@ type MatcherFunc func(rune) bool
 
 // ScanFunc is a scan function useful for customizing the scanner.
 type ScanFunc func(*Scanner)
+
+func (t *Scanner) String(r string) bool {
+	m := t.Mark()
+	if t.Match(r) && t.UntilEsc(r) && t.Match(r) {
+		t.mark = m
+		return true
+	}
+	return false
+}
+
+func (t *Scanner) UntilEsc(r string) bool {
+	m := t.Mark()
+	for t.Until(r, "\n") && t.Mark().Left("\\") && t.Match(r) {
+	}
+	t.mark = m
+	return t.Moved() || true
+}
