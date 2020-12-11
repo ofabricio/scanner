@@ -19,20 +19,25 @@ func NewScanner(r io.Reader) *Scanner {
 // Until advances the cursor until the string matches.
 // Until always return true. To know if Until moved
 // the cursor check for Moved() after Until.
-func (t *Scanner) Until(s ...string) bool {
-	any := func() bool {
-		for _, ss := range s {
-			if t.Equal(ss) {
-				return true
-			}
-		}
-		return false
-	}
+func (t *Scanner) Until(s string) bool {
+	return t.UntilAny(s)
+}
+
+func (t *Scanner) UntilAny(s ...string) bool {
 	t.Mark()
-	for t.More() && !any() {
+	for t.More() && !t.anyStr(s...) {
 		t.Next()
 	}
 	return t.Moved() || true
+}
+
+func (t *Scanner) anyStr(s ...string) bool {
+	for _, ss := range s {
+		if t.Equal(ss) {
+			return true
+		}
+	}
+	return false
 }
 
 // UntilCond is like Until.
@@ -77,7 +82,7 @@ func (t *Scanner) String(r string) bool {
 // If r == "'" then 'He\'llo' results in 'He\'llo' instead of 'He\'.
 func (t *Scanner) untilEsc(r string) bool {
 	m := t.Mark()
-	for t.Until(r, "\n") && t.Mark().Left("\\") && t.Match(r) {
+	for t.UntilAny(r, "\n") && t.Mark().Left("\\") && t.Match(r) {
 		t.mark = m
 	}
 	return t.Moved() || true
