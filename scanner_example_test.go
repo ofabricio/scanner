@@ -3,7 +3,6 @@ package scanner_test
 import (
 	"fmt"
 	"strings"
-	"unicode"
 
 	"github.com/ofabricio/scanner"
 )
@@ -21,31 +20,20 @@ func Example() {
 
 	for s.More() {
 
-		if s.WhileCond(unicode.IsSpace) {
-			continue
-		}
-
-		if s.WhileCond(unicode.IsLetter) {
+		if s.Match(`^\w+`) {
 			fmt.Println(s.Text())
 			continue
 		}
 
-		if s.WhileCond(unicode.IsNumber) {
+		if s.String("'") {
 			fmt.Println(s.Text())
 			continue
 		}
 
-		m := s.Mark()
-		if s.Match("'") && s.Until("'") && s.Match("'") {
-			fmt.Println(m.Text())
-			continue
-		}
-
-		if s.MatchCond(unicode.IsPunct) || s.MatchCond(unicode.IsSymbol) {
+		if s.Match(".") {
 			fmt.Println(s.Text())
 			continue
 		}
-
 	}
 
 	// Output:
@@ -74,11 +62,12 @@ func Example_validating_strings() {
 
 	for s.More() {
 
-		if s.WhileCond(unicode.IsSpace) {
+		if s.Match(`^\w+`) {
+			fmt.Println(s.Text())
 			continue
 		}
 
-		if s.WhileCond(unicode.IsLetter) || s.Match("=") {
+		if s.Match(`^=`) {
 			fmt.Println(s.Text())
 			continue
 		}
@@ -90,6 +79,7 @@ func Example_validating_strings() {
 			continue
 		}
 
+		s.Match(".+")
 		fmt.Println("INVALID", m.Text())
 	}
 
@@ -107,7 +97,7 @@ func ExampleScanner() {
 
 	s := scanner.NewScanner(strings.NewReader("The quick fox"))
 
-	for ; s.WhileCond(unicode.IsLetter); s.Match(" ") {
+	for s.Match("\\w+") {
 		fmt.Println(s.Text())
 	}
 
@@ -145,11 +135,11 @@ func Example_string_escape() {
 
 	s := scanner.NewScanner(strings.NewReader(src))
 
-	for s.WhileCond(unicode.IsSpace) && s.More() {
+	for s.More() {
 		m := s.Mark()
 		if s.String("'") || s.String("\"") {
 			fmt.Println(s.Text())
-		} else {
+		} else if s.Match(".*") {
 			fmt.Println("INVALID", m.Text())
 		}
 	}

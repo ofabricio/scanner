@@ -2,8 +2,10 @@ package scanner
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
+	"regexp"
 	"unicode/utf8"
 )
 
@@ -13,116 +15,55 @@ func NewScanner(r io.Reader) *Scanner {
 	s := &Scanner{data: data, cursor: cursor{Row: 1}}
 	s.Next()
 	s.Mark()
+	s.Space("^\\s+")
 	return s
 }
 
-// Until advances the cursor until the string matches.
-// Until always return true. To know if Until moved
-// the cursor check for Moved() after Until.
-func (t *Scanner) Until(s string) bool {
-	return t.UntilAny(s)
-}
-
-func (t *Scanner) UntilAny(s ...string) bool {
-	t.Mark()
-	for t.More() && !t.anyStr(s...) {
-		t.Next()
-	}
-	return t.Moved() || true
-}
-
-func (t *Scanner) anyStr(s ...string) bool {
-	for _, ss := range s {
-		if t.Equal(ss) {
-			return true
-		}
-	}
-	return false
-}
-
-// UntilCond is like Until.
-func (t *Scanner) UntilCond(cond MatcherFunc) bool {
-	t.Mark()
-	for t.More() && !t.EqualCond(cond) {
-		t.Next()
-	}
-	return t.Moved() || true
-}
-
-// While advances the cursor while the string matches.
-// Returns true if the cursor moved.
-func (t *Scanner) While(s string) bool {
-	t.Mark()
-	for t.More() && t.Equal(s) {
-		t.next(len(s))
-	}
-	return t.Moved()
-}
-
-// WhileCond is like While.
-func (t *Scanner) WhileCond(cond MatcherFunc) bool {
-	t.Mark()
-	for t.More() && t.EqualCond(cond) {
-		t.Next()
-	}
-	return t.Moved()
-}
-
 // String matches a string like 'Hi' if r is "'".
-// This default implementation does not scans multiline strings.
+// This default implementation does not scan multiline strings.
 func (t *Scanner) String(r string) bool {
-	m := t.Mark()
-	if t.Match(r) && t.untilEsc(r) && t.Match(r) {
-		t.mark = m
-	}
-	return t.Moved()
+	r = fmt.Sprintf(`^%s(?:\\.|[^%s\n])*%s`, r, r, r)
+	return t.Match(r)
 }
 
-// untilEsc is a Until that escapes r. Example:
-// If r == "'" then 'He\'llo' results in 'He\'llo' instead of 'He\'.
-func (t *Scanner) untilEsc(r string) bool {
-	m := t.Mark()
-	for t.UntilAny(r, "\n") && t.Mark().Left("\\") && t.Match(r) {
-		t.mark = m
-	}
-	return t.Moved() || true
+// Match matches the given regex and
+// advances the cursor on match.
+func (t *Scanner) Match(regex string) bool {
+	return t.Regex(regexp.MustCompile(regex))
 }
 
-// Match advances the cursor if the string matches.
-// Returns true if the cursor moved.
-func (t *Scanner) Match(s string) bool {
+// Regex matches the given regex and
+// advances the cursor on match.
+func (t *Scanner) Regex(re *regexp.Regexp) bool {
 	t.Mark()
-	if t.More() && t.Equal(s) {
-		t.next(len(s))
+	return t.regex(re)
+}
+
+// Mark marks the begining of a token.
+func (t *Scanner) Mark() Mark {
+	if t.space != nil {
+		t.Skip(t.space)
 	}
-	return t.Moved()
+	t.mark.cursor = t.cursor
+	t.mark.scan = t
+	return t.mark
 }
 
-// MatchCond is like Match.
-func (t *Scanner) MatchCond(cond MatcherFunc) bool {
-	t.Mark()
-	if t.More() && t.EqualCond(cond) {
-		t.Next()
+// Space sets what should be skipped.
+func (t *Scanner) Space(s string) {
+	t.space = regexp.MustCompile(s)
+}
+
+// Skip skips a regex. It moves the cursor without Mark().
+func (t *Scanner) Skip(re *regexp.Regexp) bool {
+	return t.regex(re)
+}
+
+func (t *Scanner) regex(re *regexp.Regexp) bool {
+	if loc := re.FindIndex(t.data[t.cursor.disp:]); loc != nil {
+		count := utf8.RuneCount(t.data[:loc[1]])
+		t.next(count)
 	}
-	return t.Moved()
-}
-
-// Equal tests if a string matches.
-// Equal does not move the cursor.
-func (t *Scanner) Equal(s string) bool {
-	return bytes.HasPrefix(t.data[t.cursor.disp:], []byte(s))
-}
-
-// EqualCond is like Equal.
-func (t *Scanner) EqualCond(cond MatcherFunc) bool {
-	return cond(t.char)
-}
-
-// Scan runs a scan function.
-// You can use this to provide your own scanner implementation.
-func (t *Scanner) Scan(fn ScanFunc) bool {
-	t.Mark()
-	fn(t)
 	return t.Moved()
 }
 
@@ -145,13 +86,6 @@ func (t *Scanner) Next() {
 	r, s := utf8.DecodeRune(t.data[t.cursor.disp:])
 	t.char = r
 	t.size = s
-}
-
-// Mark marks the begining of a token.
-func (t *Scanner) Mark() Mark {
-	t.mark.cursor = t.cursor
-	t.mark.scan = t
-	return t.mark
 }
 
 // More tells if the scanner still has data ahead of the cursor.
@@ -194,6 +128,8 @@ type Scanner struct {
 	cursor cursor
 
 	mark Mark
+
+	space *regexp.Regexp
 }
 
 // Mark is a mark in the scanner.
@@ -208,12 +144,6 @@ type cursor struct {
 	Row  int // Cursor line.
 	Col  int // Cursor column.
 }
-
-// MatcherFunc is a matcher function.
-type MatcherFunc func(rune) bool
-
-// ScanFunc is a scan function useful for customizing the scanner.
-type ScanFunc func(*Scanner)
 
 // Text returns a token starting from a mark.
 func (t Mark) Text() string {

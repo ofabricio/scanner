@@ -5,123 +5,18 @@ import (
 	"runtime"
 	"strings"
 	"testing"
-	"unicode"
 )
 
-func TestEqual(t *testing.T) {
+func TestNewLines(t *testing.T) {
 
-	s := NewScanner(strings.NewReader("Hello"))
-
-	Equal(t, s.Equal("Hello"), true)
-
-	Equal(t, s.Moved(), false)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
-}
-
-func TestEqualB(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("World"))
-
-	Equal(t, s.Equal("Hello"), false)
-
-	Equal(t, s.Moved(), false)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
-}
-
-func TestEmpty(t *testing.T) {
-
-	s := NewScanner(strings.NewReader(""))
-
-	Equal(t, s.Equal("Hello"), false)
-
-	Equal(t, s.Moved(), false)
-	Equal(t, s.More(), false)
-	Equal(t, s.Text(), "")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
-}
-
-func TestEqualCond(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("Hello"))
-
-	Equal(t, s.EqualCond(unicode.IsLetter), true)
-
-	Equal(t, s.Moved(), false)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
-}
-
-func TestEqualCondB(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("12345"))
-
-	Equal(t, s.EqualCond(unicode.IsLetter), false)
-
-	Equal(t, s.Moved(), false)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
-}
-
-func TestMatch(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("Hello World"))
+	s := NewScanner(strings.NewReader("\nHello"))
 
 	Equal(t, s.Match("Hello"), true)
 
 	Equal(t, s.Moved(), true)
-	Equal(t, s.More(), true)
+	Equal(t, s.More(), false)
 	Equal(t, s.Text(), "Hello")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
-}
-
-func TestMatchB(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("World Hello"))
-
-	Equal(t, s.Match("Hello"), false)
-
-	Equal(t, s.Moved(), false)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
-}
-
-func TestMatchCond(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("Hello"))
-
-	Equal(t, s.MatchCond(unicode.IsLetter), true)
-
-	Equal(t, s.Moved(), true)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "H")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
-}
-
-func TestMatchCondB(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("1234"))
-
-	Equal(t, s.MatchCond(unicode.IsLetter), false)
-
-	Equal(t, s.Moved(), false)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "")
-	Equal(t, s.Row(), 1)
+	Equal(t, s.Row(), 2)
 	Equal(t, s.Col(), 1)
 }
 
@@ -129,11 +24,11 @@ func TestUntil(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("There are no uninteresting things, only uninterested people"))
 
-	Equal(t, s.Until("uninterested"), true)
+	Equal(t, s.Match("uninterested"), true)
 
 	Equal(t, s.Moved(), true)
 	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "There are no uninteresting things, only ")
+	Equal(t, s.Text(), "There are no uninteresting things, only uninterested")
 	Equal(t, s.Row(), 1)
 	Equal(t, s.Col(), 1)
 }
@@ -142,11 +37,11 @@ func TestUntilBegining(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("Hello"))
 
-	Equal(t, s.Until("Hello"), true)
+	Equal(t, s.Match("Hello"), true)
 
-	Equal(t, s.Moved(), false)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "")
+	Equal(t, s.Moved(), true)
+	Equal(t, s.More(), false)
+	Equal(t, s.Text(), "Hello")
 	Equal(t, s.Row(), 1)
 	Equal(t, s.Col(), 1)
 }
@@ -155,33 +50,7 @@ func TestUntilEnd(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("Hello"))
 
-	Equal(t, s.Until("World"), true)
-
-	Equal(t, s.Moved(), true)
-	Equal(t, s.More(), false)
-	Equal(t, s.Text(), "Hello")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
-}
-
-func TestUntilCond(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("Hello!"))
-
-	Equal(t, s.UntilCond(unicode.IsPunct), true)
-
-	Equal(t, s.Moved(), true)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "Hello")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
-}
-
-func TestUntilCondStart(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("123Hello"))
-
-	Equal(t, s.UntilCond(unicode.IsDigit), true)
+	Equal(t, s.Match("World"), false)
 
 	Equal(t, s.Moved(), false)
 	Equal(t, s.More(), true)
@@ -190,45 +59,58 @@ func TestUntilCondStart(t *testing.T) {
 	Equal(t, s.Col(), 1)
 }
 
+func TestUntilCond(t *testing.T) {
+
+	s := NewScanner(strings.NewReader("Hello!"))
+
+	Equal(t, s.Match("!"), true)
+
+	Equal(t, s.Moved(), true)
+	Equal(t, s.More(), false)
+	Equal(t, s.Text(), "Hello!")
+	Equal(t, s.Row(), 1)
+	Equal(t, s.Col(), 1)
+}
+
+func TestUntilCondStart(t *testing.T) {
+
+	s := NewScanner(strings.NewReader("123Hello"))
+
+	Equal(t, s.Match("\\d+"), true)
+
+	Equal(t, s.Moved(), true)
+	Equal(t, s.More(), true)
+	Equal(t, s.Text(), "123")
+	Equal(t, s.Row(), 1)
+	Equal(t, s.Col(), 1)
+}
+
 func TestUntilCondB(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("Hello,World "))
 
-	Equal(t, s.UntilCond(unicode.IsPunct), true)
+	Equal(t, s.Match(","), true)
 
 	Equal(t, s.Moved(), true)
 	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "Hello")
+	Equal(t, s.Text(), "Hello,")
 	Equal(t, s.Row(), 1)
 	Equal(t, s.Col(), 1)
 
-	Equal(t, s.UntilCond(unicode.IsSpace), true)
-
-	Equal(t, s.Moved(), true)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), ",World")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 6)
-}
-
-func TestUntilCondEnd(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("Hello"))
-
-	Equal(t, s.UntilCond(unicode.IsPunct), true)
+	Equal(t, s.Match(" "), true)
 
 	Equal(t, s.Moved(), true)
 	Equal(t, s.More(), false)
-	Equal(t, s.Text(), "Hello")
+	Equal(t, s.Text(), "World ")
 	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
+	Equal(t, s.Col(), 7)
 }
 
 func TestWhile(t *testing.T) {
 
 	s := NewScanner(strings.NewReader("NanNanNanNan Batman!"))
 
-	Equal(t, s.While("Nan"), true)
+	Equal(t, s.Match("(Nan)+"), true)
 
 	Equal(t, s.Moved(), true)
 	Equal(t, s.More(), true)
@@ -239,40 +121,30 @@ func TestWhile(t *testing.T) {
 
 func TestWhileB(t *testing.T) {
 
-	s := NewScanner(strings.NewReader("Hello"))
+	s := NewScanner(strings.NewReader("aaa\nbbb\nccc"))
 
-	Equal(t, s.While("World"), false)
+	Equal(t, s.Match("aaa"), true)
 
-	Equal(t, s.Moved(), false)
+	Equal(t, s.Moved(), true)
 	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "")
+	Equal(t, s.Text(), "aaa")
 	Equal(t, s.Row(), 1)
 	Equal(t, s.Col(), 1)
-}
 
-func TestWhileCond(t *testing.T) {
+	Equal(t, s.Match("bbb"), true)
 
-	s := NewScanner(strings.NewReader("Hello"))
+	Equal(t, s.Moved(), true)
+	Equal(t, s.More(), true)
+	Equal(t, s.Text(), "bbb")
+	Equal(t, s.Row(), 2)
+	Equal(t, s.Col(), 1)
 
-	Equal(t, s.WhileCond(unicode.IsLetter), true)
+	Equal(t, s.Match("ccc"), true)
 
 	Equal(t, s.Moved(), true)
 	Equal(t, s.More(), false)
-	Equal(t, s.Text(), "Hello")
-	Equal(t, s.Row(), 1)
-	Equal(t, s.Col(), 1)
-}
-
-func TestWhileCondB(t *testing.T) {
-
-	s := NewScanner(strings.NewReader("12345 Hello"))
-
-	Equal(t, s.WhileCond(unicode.IsLetter), false)
-
-	Equal(t, s.Moved(), false)
-	Equal(t, s.More(), true)
-	Equal(t, s.Text(), "")
-	Equal(t, s.Row(), 1)
+	Equal(t, s.Text(), "ccc")
+	Equal(t, s.Row(), 3)
 	Equal(t, s.Col(), 1)
 }
 
@@ -310,6 +182,19 @@ func TestStringEscape(t *testing.T) {
 	Equal(t, s.Moved(), true)
 	Equal(t, s.More(), false)
 	Equal(t, s.Text(), `'\'Hello\''`)
+	Equal(t, s.Row(), 1)
+	Equal(t, s.Col(), 1)
+}
+
+func TestStringInvalid(t *testing.T) {
+
+	s := NewScanner(strings.NewReader(`'Hello`))
+
+	Equal(t, s.String("'"), false)
+
+	Equal(t, s.Moved(), false)
+	Equal(t, s.More(), true)
+	Equal(t, s.Text(), "")
 	Equal(t, s.Row(), 1)
 	Equal(t, s.Col(), 1)
 }
