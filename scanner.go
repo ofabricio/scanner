@@ -326,26 +326,31 @@ func (end Scanner) Token(ini Scanner) string {
 
 // TokenByteBy returns a token given a byte function.
 func (s *Scanner) TokenByteBy(f func(byte) bool) string {
-	if m := *s; s.MatchWhileByteBy(f) {
-		return s.Token(m)
-	}
-	return ""
+	m := *s
+	s.MatchWhileByteBy(f)
+	m = m[:len(m)-len(*s)]
+	return *(*string)(unsafe.Pointer(&m))
 }
 
 // TokenRuneBy returns a token given a rune function.
 func (s *Scanner) TokenRuneBy(f func(rune) bool) string {
-	if m := *s; s.MatchWhileRuneBy(f) {
-		return s.Token(m)
-	}
-	return ""
+	m := *s
+	s.MatchWhileRuneBy(f)
+	m = m[:len(m)-len(*s)]
+	return *(*string)(unsafe.Pointer(&m))
 }
 
 // TokenFor returns a token given a match function.
 func (s *Scanner) TokenFor(f func() bool) string {
-	if m := *s; f() {
-		return s.Token(m)
-	}
-	return ""
+	m := *s
+	f()
+	return m[:len(m)-len(*s)].String()
+}
+
+func (s *Scanner) TokenWith(f func(*Scanner) bool) string {
+	m := *s
+	f(s)
+	return m[:len(m)-len(*s)].String()
 }
 
 // #endregion Token
@@ -360,7 +365,7 @@ func (s *Scanner) Next() {
 // Next moves to the next rune.
 func (s *Scanner) NextRune() {
 	ss := *s
-	_, size := utf8.DecodeRuneInString(ss.String())
+	_, size := utf8.DecodeRuneInString(*(*string)(unsafe.Pointer(&ss)))
 	*s = ss[size:]
 }
 

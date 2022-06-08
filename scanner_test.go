@@ -820,6 +820,36 @@ func BenchmarkScannerTokenFor(b *testing.B) {
 	}
 }
 
+func TestScannerTokenWith(t *testing.T) {
+	f := func(s *Scanner) bool {
+		return s.MatchByte('a')
+	}
+	tt := []struct {
+		give string
+		then string
+		exp  string
+	}{
+		{give: `aaa`, then: "a", exp: "aa"},
+		{give: `bbb`, then: "", exp: "bbb"},
+	}
+	for _, tc := range tt {
+		s := Scanner(tc.give)
+		assert.Equal(t, tc.then, s.TokenWith(f), tc)
+		assert.Equal(t, tc.exp, s.String(), tc)
+	}
+}
+
+func BenchmarkScannerTokenWith(b *testing.B) {
+	f := func(s *Scanner) bool {
+		return s.MatchByte('a')
+	}
+	x := Scanner(`aaa`)
+	for i := 0; i < b.N; i++ {
+		s := x
+		_ = s.TokenWith(f)
+	}
+}
+
 // #endregion Token
 
 // #region Movement

@@ -97,6 +97,7 @@ func (j *Json) MatchString() bool {
 - [x] TokenByteBy(func(byte) bool) string
 - [x] TokenRuneBy(func(rune) bool) string
 - [x] TokenFor(func() bool) string
+- [x] TokenWith(func(*Scanner) bool) string
 
 #### Movement
 
