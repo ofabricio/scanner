@@ -1061,6 +1061,7 @@ func TestScannerUtilMatchOpenCloseCount(t *testing.T) {
 		{give: `{}`, then: true, exp: `{}`},
 		{give: `{{}}`, then: true, exp: `{{}}`},
 		{give: `{{}{}{{}}}`, then: true, exp: `{{}{}{{}}}`},
+		{give: `{"}"{}{}{{}}}`, then: true, exp: `{"}"{}{}{{}}}`},
 		{give: `{}{}`, then: true, exp: `{}`},
 		{give: `{`, then: false, exp: ``},
 		{give: `}`, then: false, exp: ``},
@@ -1069,7 +1070,7 @@ func TestScannerUtilMatchOpenCloseCount(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.UtilMatchOpenCloseCount('{', '}'), tc)
+		assert.Equal(t, tc.then, s.UtilMatchOpenCloseCount('{', '}', '"'), tc)
 		assert.Equal(t, tc.exp, s.Token(m), tc)
 	}
 }
@@ -1078,7 +1079,7 @@ func BenchmarkScannerUtilMatchOpenCloseCount(b *testing.B) {
 	x := Scanner(`{{}}`)
 	for i := 0; i < b.N; i++ {
 		s := x
-		s.UtilMatchOpenCloseCount('{', '}')
+		s.UtilMatchOpenCloseCount('{', '}', '"')
 	}
 }
 

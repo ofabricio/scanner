@@ -435,7 +435,8 @@ func (s *Scanner) UtilMatchString(quote byte) bool {
 }
 
 // UtilMatchOpenCloseCount matches open and close by counting them.
-func (s *Scanner) UtilMatchOpenCloseCount(open, clos byte) bool {
+// Also skips strings by quote.
+func (s *Scanner) UtilMatchOpenCloseCount(open, clos, quote byte) bool {
 	if ss := *s; len(ss) > 0 && ss[0] == open {
 		c := 0
 		for i := 0; i < len(ss); i++ {
@@ -449,6 +450,16 @@ func (s *Scanner) UtilMatchOpenCloseCount(open, clos byte) bool {
 					break
 				}
 			}
+			// Skip string.
+			if ss[i] == quote {
+				for i = i + 1; i < len(ss); i++ {
+					if ss[i] == quote && ss[i-1] != '\\' {
+						break
+					}
+				}
+				continue
+			}
+
 		}
 		return c == 0
 	}
