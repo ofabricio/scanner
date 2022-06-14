@@ -43,6 +43,12 @@ func (s Scanner) EqualRuneBy(f func(rune) bool) bool {
 	return f(s.CurrRune())
 }
 
+// EqualByteRange tests the current byte given a byte range.
+func (s Scanner) EqualByteRange(a, b byte) bool {
+	c := s.Curr()
+	return c >= a && c <= b
+}
+
 // #endregion Equal
 
 // #region Match

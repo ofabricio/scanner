@@ -142,6 +142,32 @@ func BenchmarkScannerEqualRuneBy(b *testing.B) {
 	}
 }
 
+func TestScannerEqualByteRange(t *testing.T) {
+	tt := []struct {
+		give string
+		when []byte
+		then bool
+	}{
+		{give: `a`, when: []byte{'a', 'z'}, then: true},
+		{give: `m`, when: []byte{'a', 'z'}, then: true},
+		{give: `z`, when: []byte{'a', 'z'}, then: true},
+		{give: `9`, when: []byte{'a', 'z'}, then: false},
+		{give: ``, when: []byte{'a', 'z'}, then: false},
+	}
+	for _, tc := range tt {
+		s := Scanner(tc.give)
+		assert.Equal(t, tc.then, s.EqualByteRange(tc.when[0], tc.when[1]), tc)
+	}
+}
+
+func BenchmarkScannerEqualByteRange(b *testing.B) {
+	x := Scanner(`a`)
+	for i := 0; i < b.N; i++ {
+		s := x
+		s.EqualByteRange('a', 'z')
+	}
+}
+
 // #endregion Equal
 
 // #region Match

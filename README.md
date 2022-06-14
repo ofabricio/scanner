@@ -62,6 +62,7 @@ func (j *Json) MatchString() bool {
 - [x] EqualRune(rune) bool
 - [x] EqualByteBy(func(byte) bool) bool
 - [x] EqualRuneBy(func(rune) bool) bool
+- [x] EqualByteRange(a, b byte) bool
 
 #### Match
 
