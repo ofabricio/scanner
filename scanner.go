@@ -220,6 +220,18 @@ func (s *Scanner) MatchUntilAnyByte3(a, b, c byte) bool {
 	return false
 }
 
+// MatchUntilAnyByte4 matches until any argument matches.
+func (s *Scanner) MatchUntilAnyByte4(a, b, c, d byte) bool {
+	ss := *s
+	for i := 0; i < len(ss); i++ {
+		if ss[i] == a || ss[i] == b || ss[i] == c || ss[i] == d {
+			*s = ss[i:]
+			return true
+		}
+	}
+	return false
+}
+
 // MatchUntilAnyRune matches until either a or b matches.
 func (s *Scanner) MatchUntilAnyRune(a, b rune) bool {
 	ss := *s
@@ -286,6 +298,22 @@ func (s *Scanner) MatchUntilEscRune(v, esc rune) bool {
 // #endregion Until
 
 // #region While
+
+// MatchWhileAnyByte4 matches while any argument matches.
+func (s *Scanner) MatchWhileAnyByte4(a, b, c, d byte) bool {
+	i := 0
+	ss := *s
+	for ; i < len(ss); i++ {
+		if ss[i] != a && ss[i] != b && ss[i] != c && ss[i] != d {
+			break
+		}
+	}
+	if i > 0 {
+		*s = ss[i:]
+		return true
+	}
+	return false
+}
 
 // MatchWhileByteBy matches while f matches.
 func (s *Scanner) MatchWhileByteBy(f func(byte) bool) bool {

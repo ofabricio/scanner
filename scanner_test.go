@@ -547,6 +547,35 @@ func BenchmarkScannerMatchUntilAnyByte3(b *testing.B) {
 	}
 }
 
+func TestScannerMatchUntilAnyByte4(t *testing.T) {
+	tt := []struct {
+		give string
+		when []byte
+		then bool
+		exp  string
+	}{
+		{give: `abc.`, when: []byte{'.', ',', ';', ':'}, then: true, exp: "abc"},
+		{give: `abc,`, when: []byte{'.', ',', ';', ':'}, then: true, exp: "abc"},
+		{give: `abc;`, when: []byte{'.', ',', ';', ':'}, then: true, exp: "abc"},
+		{give: `abc:`, when: []byte{'.', ',', ';', ':'}, then: true, exp: "abc"},
+		{give: `abc?`, when: []byte{'.', ',', ';', ':'}, then: false, exp: ""},
+	}
+	for _, tc := range tt {
+		s := Scanner(tc.give)
+		m := s.Mark()
+		assert.Equal(t, tc.then, s.MatchUntilAnyByte4(tc.when[0], tc.when[1], tc.when[2], tc.when[3]), tc)
+		assert.Equal(t, tc.exp, s.Token(m), tc)
+	}
+}
+
+func BenchmarkScannerMatchUntilAnyByte4(b *testing.B) {
+	x := Scanner(`abc.`)
+	for i := 0; i < b.N; i++ {
+		s := x
+		s.MatchUntilAnyByte4('.', ',', ';', ':')
+	}
+}
+
 func TestScannerMatchUntilAnyRune(t *testing.T) {
 	tt := []struct {
 		give string
@@ -723,6 +752,36 @@ func BenchmarkScannerMatchWhileRuneBy(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		s := x
 		s.MatchWhileRuneBy(f)
+	}
+}
+
+func TestScannerMatchWhileAnyByte4(t *testing.T) {
+	f := func(v byte) bool {
+		return v == 'a'
+	}
+	tt := []struct {
+		give string
+		when func(byte) bool
+		then bool
+		exp  string
+	}{
+		{give: `abcdefg`, when: f, then: true, exp: "abcd"},
+		{give: `bbb`, when: f, then: true, exp: "bbb"},
+		{give: `x`, when: f, then: false, exp: ""},
+	}
+	for _, tc := range tt {
+		s := Scanner(tc.give)
+		m := s.Mark()
+		assert.Equal(t, tc.then, s.MatchWhileAnyByte4('a', 'b', 'c', 'd'), tc)
+		assert.Equal(t, tc.exp, s.Token(m), tc)
+	}
+}
+
+func BenchmarkScannerMatchWhileAnyByte4(b *testing.B) {
+	x := Scanner(`a`)
+	for i := 0; i < b.N; i++ {
+		s := x
+		s.MatchWhileAnyByte4('a', 'b', 'c', 'd')
 	}
 }
 
