@@ -785,6 +785,35 @@ func BenchmarkScannerMatchWhileAnyByte4(b *testing.B) {
 	}
 }
 
+func TestScannerMatchWhileByteLTE(t *testing.T) {
+	tt := []struct {
+		give string
+		when byte
+		then bool
+		exp  string
+	}{
+		{give: ``, when: '8', then: false, exp: ""},
+		{give: `123`, when: '8', then: true, exp: "123"},
+		{give: `1238`, when: '8', then: true, exp: "1238"},
+		{give: `12839`, when: '8', then: true, exp: "1283"},
+		{give: `9123`, when: '8', then: false, exp: ""},
+	}
+	for _, tc := range tt {
+		s := Scanner(tc.give)
+		m := s.Mark()
+		assert.Equal(t, tc.then, s.MatchWhileByteLTE(tc.when), tc)
+		assert.Equal(t, tc.exp, s.Token(m), tc)
+	}
+}
+
+func BenchmarkScannerMatchWhileByteLTE(b *testing.B) {
+	x := Scanner(`1238`)
+	for i := 0; i < b.N; i++ {
+		s := x
+		s.MatchWhileByteLTE('8')
+	}
+}
+
 // #endregion While
 
 // #region Token

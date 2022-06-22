@@ -315,6 +315,21 @@ func (s *Scanner) MatchWhileAnyByte4(a, b, c, d byte) bool {
 	return false
 }
 
+// MatchWhileByteLTE matches while the current byte is less than or equal to a.
+func (s *Scanner) MatchWhileByteLTE(a byte) bool {
+	i := 0
+	ss := *s
+	for i < len(ss) && ss[i] <= a {
+		i++
+	}
+	// Had a match?
+	if i > 0 {
+		*s = ss[i:]
+		return true
+	}
+	return false
+}
+
 // MatchWhileByteBy matches while f matches.
 func (s *Scanner) MatchWhileByteBy(f func(byte) bool) bool {
 	i := 0
