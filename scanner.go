@@ -217,6 +217,12 @@ func (s *Scanner) MatchUntilAnyByte3(a, b, c byte) bool {
 			return true
 		}
 	}
+	// If last param is 0 the caller wants
+	// whatever matched until EOF.
+	if c == 0 {
+		*s = ss[len(ss):]
+		return true
+	}
 	return false
 }
 

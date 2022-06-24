@@ -530,6 +530,8 @@ func TestScannerMatchUntilAnyByte3(t *testing.T) {
 		{give: `abc,`, when: []byte{'.', ',', ';'}, then: true, exp: "abc"},
 		{give: `abc;`, when: []byte{'.', ',', ';'}, then: true, exp: "abc"},
 		{give: `abc?`, when: []byte{'.', ',', ';'}, then: false, exp: ""},
+		{give: `abc`, when: []byte{'.', ',', ';'}, then: false, exp: ""},
+		{give: `abc`, when: []byte{'.', ',', 0}, then: true, exp: "abc"},
 	}
 	for _, tc := range tt {
 		s := Scanner(tc.give)
