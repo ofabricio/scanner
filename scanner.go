@@ -256,6 +256,24 @@ func (s *Scanner) MatchUntilAnyByte5(a, b, c, d, e byte) bool {
 	return false
 }
 
+// MatchUntilLTEOr4 matches until lte or any argument matches.
+func (s *Scanner) MatchUntilLTEOr4(lte, a, b, c, d byte) bool {
+	ss := *s
+	for i := 0; i < len(ss); i++ {
+		if ss[i] == a || ss[i] == b || ss[i] == c || ss[i] == d || ss[i] <= lte {
+			*s = ss[i:]
+			return true
+		}
+	}
+	// If last param is 0 the caller wants
+	// whatever matched until EOF.
+	if d == 0 {
+		*s = ss[len(ss):]
+		return true
+	}
+	return false
+}
+
 // MatchUntilAnyRune matches until either a or b matches.
 func (s *Scanner) MatchUntilAnyRune(a, b rune) bool {
 	ss := *s
