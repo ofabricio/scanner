@@ -609,6 +609,35 @@ func BenchmarkScannerMatchUntilAnyByte5(b *testing.B) {
 	}
 }
 
+func TestScannerMatchMatchUntilLTEOr2(t *testing.T) {
+	tt := []struct {
+		give string
+		when []byte
+		then bool
+		exp  string
+	}{
+		{give: `abc,`, when: []byte{' ', ',', '?'}, then: true, exp: "abc"},
+		{give: `abc `, when: []byte{' ', ',', '?'}, then: true, exp: "abc"},
+		{give: `abc?`, when: []byte{' ', ',', '?'}, then: true, exp: "abc"},
+		{give: `abc`, when: []byte{' ', ',', '?'}, then: false, exp: ""},
+		{give: `abc`, when: []byte{' ', ',', 0}, then: true, exp: "abc"},
+	}
+	for _, tc := range tt {
+		s := Scanner(tc.give)
+		m := s.Mark()
+		assert.Equal(t, tc.then, s.MatchUntilLTEOr2(tc.when[0], tc.when[1], tc.when[2]), tc)
+		assert.Equal(t, tc.exp, s.Token(m), tc)
+	}
+}
+
+func BenchmarkScannerMatchUntilLTEOr2(b *testing.B) {
+	x := Scanner(`abc.`)
+	for i := 0; i < b.N; i++ {
+		s := x
+		s.MatchUntilLTEOr2(' ', '.', 0)
+	}
+}
+
 func TestScannerMatchMatchUntilLTEOr4(t *testing.T) {
 	tt := []struct {
 		give string
