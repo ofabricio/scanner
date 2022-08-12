@@ -1201,6 +1201,7 @@ func BenchmarkScannerCurrRune(b *testing.B) {
 func TestScannerString(t *testing.T) {
 	s := Scanner(`abc`)
 	assert.Equal(t, `abc`, s.String())
+	assert.Equal(t, 3, len(s.String()))
 }
 
 func BenchmarkScannerString(b *testing.B) {
@@ -1214,6 +1215,8 @@ func BenchmarkScannerString(b *testing.B) {
 func TestScannerBytes(t *testing.T) {
 	s := Scanner(`abc`)
 	assert.Equal(t, []byte{'a', 'b', 'c'}, s.Bytes())
+	assert.Equal(t, 3, len(s.Bytes()))
+	assert.Equal(t, 32, cap(s.Bytes()))
 }
 
 func BenchmarkScannerBytes(b *testing.B) {

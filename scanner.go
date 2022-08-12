@@ -2,7 +2,6 @@ package scanner
 
 import (
 	"unicode/utf8"
-	"unsafe"
 )
 
 type Scanner string
@@ -438,7 +437,7 @@ func (s *Scanner) TokenByteBy(f func(byte) bool) string {
 	m := *s
 	s.MatchWhileByteBy(f)
 	m = m[:len(m)-len(*s)]
-	return *(*string)(unsafe.Pointer(&m))
+	return string(m)
 }
 
 // TokenRuneBy returns a token given a rune function.
@@ -446,7 +445,7 @@ func (s *Scanner) TokenRuneBy(f func(rune) bool) string {
 	m := *s
 	s.MatchWhileRuneBy(f)
 	m = m[:len(m)-len(*s)]
-	return *(*string)(unsafe.Pointer(&m))
+	return string(m)
 }
 
 // TokenFor returns a token given a match function.
@@ -474,7 +473,7 @@ func (s *Scanner) Next() {
 // Next moves to the next rune.
 func (s *Scanner) NextRune() {
 	ss := *s
-	_, size := utf8.DecodeRuneInString(*(*string)(unsafe.Pointer(&ss)))
+	_, size := utf8.DecodeRuneInString(string(ss))
 	*s = ss[size:]
 }
 
@@ -518,12 +517,16 @@ func (s Scanner) CurrRune() rune {
 
 // String returns the scanner text.
 func (s Scanner) String() string {
-	return *(*string)(unsafe.Pointer(&s))
+	return string(s)
 }
 
 // Bytes returns the scanner bytes.
 func (s Scanner) Bytes() []byte {
-	return *(*[]byte)(unsafe.Pointer(&s))
+	return []byte(s)
+	// The line above is  325771390 | 3.745 ns/op | 0 B/op | 0 allocs/op.
+	// The line below is 1000000000 | 0.568 ns/op | 0 B/op | 0 allocs/op.
+	// But I'm not sure yet if it's totaly safe to use.
+	// return (*[1 << 30]byte)(unsafe.Pointer((*reflect.StringHeader)(unsafe.Pointer(&s)).Data))[:len(s):len(s)]
 }
 
 // #endregion Miscellaneous
