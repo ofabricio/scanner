@@ -1,9 +1,9 @@
 package scanner
 
 import (
+	"fmt"
+	"reflect"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 // #region Equal
@@ -23,7 +23,7 @@ func TestScannerEqual(t *testing.T) {
 	}
 	for _, tc := range tt {
 		s := Scanner(tc.give)
-		assert.Equal(t, tc.then, s.Equal(tc.when), tc)
+		assertEqual(t, tc.then, s.Equal(tc.when), tc)
 	}
 }
 
@@ -47,7 +47,7 @@ func TestScannerEqualByte(t *testing.T) {
 	}
 	for _, tc := range tt {
 		s := Scanner(tc.give)
-		assert.Equal(t, tc.then, s.EqualByte(tc.when), tc)
+		assertEqual(t, tc.then, s.EqualByte(tc.when), tc)
 	}
 }
 
@@ -71,7 +71,7 @@ func TestScannerEqualRune(t *testing.T) {
 	}
 	for _, tc := range tt {
 		s := Scanner(tc.give)
-		assert.Equal(t, tc.then, s.EqualRune(tc.when), tc)
+		assertEqual(t, tc.then, s.EqualRune(tc.when), tc)
 	}
 }
 
@@ -98,7 +98,7 @@ func TestScannerEqualByteBy(t *testing.T) {
 	}
 	for _, tc := range tt {
 		s := Scanner(tc.give)
-		assert.Equal(t, tc.then, s.EqualByteBy(tc.when), tc)
+		assertEqual(t, tc.then, s.EqualByteBy(tc.when), tc)
 	}
 }
 
@@ -127,7 +127,7 @@ func TestScannerEqualRuneBy(t *testing.T) {
 	}
 	for _, tc := range tt {
 		s := Scanner(tc.give)
-		assert.Equal(t, tc.then, s.EqualRuneBy(tc.when), tc)
+		assertEqual(t, tc.then, s.EqualRuneBy(tc.when), tc)
 	}
 }
 
@@ -156,7 +156,7 @@ func TestScannerEqualByteRange(t *testing.T) {
 	}
 	for _, tc := range tt {
 		s := Scanner(tc.give)
-		assert.Equal(t, tc.then, s.EqualByteRange(tc.when[0], tc.when[1]), tc)
+		assertEqual(t, tc.then, s.EqualByteRange(tc.when[0], tc.when[1]), tc)
 	}
 }
 
@@ -186,8 +186,8 @@ func TestScannerMatch(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.Match(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.Match(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -212,8 +212,8 @@ func TestScannerMatchByte(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchByte(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchByte(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -238,8 +238,8 @@ func TestScannerMatchRune(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchRune(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchRune(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -267,8 +267,8 @@ func TestScannerMatchByteBy(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchByteBy(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchByteBy(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -299,8 +299,8 @@ func TestScannerMatchRuneBy(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchRuneBy(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchRuneBy(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -333,8 +333,8 @@ func TestScannerMatchUntil(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntil(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntil(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -359,8 +359,8 @@ func TestScannerMatchUntilByte(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilByte(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilByte(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -385,8 +385,8 @@ func TestScannerMatchUntilRune(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilRune(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilRune(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -414,8 +414,8 @@ func TestScannerMatchUntilByteBy(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilByteBy(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilByteBy(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -446,8 +446,8 @@ func TestScannerMatchUntilRuneBy(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilRuneBy(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilRuneBy(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -479,8 +479,8 @@ func TestScannerMatchUntilAny(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilAny(tc.when[0], tc.when[1]), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilAny(tc.when[0], tc.when[1]), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -506,8 +506,8 @@ func TestScannerMatchUntilAnyByte(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilAnyByte(tc.when[0], tc.when[1]), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilAnyByte(tc.when[0], tc.when[1]), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -536,8 +536,8 @@ func TestScannerMatchUntilAnyByte3(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilAnyByte3(tc.when[0], tc.when[1], tc.when[2]), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilAnyByte3(tc.when[0], tc.when[1], tc.when[2]), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -565,8 +565,8 @@ func TestScannerMatchUntilAnyByte4(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilAnyByte4(tc.when[0], tc.when[1], tc.when[2], tc.when[3]), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilAnyByte4(tc.when[0], tc.when[1], tc.when[2], tc.when[3]), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -596,8 +596,8 @@ func TestScannerMatchUntilAnyByte5(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilAnyByte5(tc.when[0], tc.when[1], tc.when[2], tc.when[3], tc.when[4]), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilAnyByte5(tc.when[0], tc.when[1], tc.when[2], tc.when[3], tc.when[4]), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -625,8 +625,8 @@ func TestScannerMatchMatchUntilLTEOr2(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilLTEOr2(tc.when[0], tc.when[1], tc.when[2]), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilLTEOr2(tc.when[0], tc.when[1], tc.when[2]), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -655,8 +655,8 @@ func TestScannerMatchMatchUntilLTEOr4(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilLTEOr4(tc.when[0], tc.when[1], tc.when[2], tc.when[3], tc.when[4]), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilLTEOr4(tc.when[0], tc.when[1], tc.when[2], tc.when[3], tc.when[4]), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -682,8 +682,8 @@ func TestScannerMatchUntilAnyRune(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilAnyRune(tc.when[0], tc.when[1]), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilAnyRune(tc.when[0], tc.when[1]), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -710,8 +710,8 @@ func TestScannerMatchUntilEsc(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilEsc(tc.when[0], tc.when[1]), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilEsc(tc.when[0], tc.when[1]), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -737,8 +737,8 @@ func TestScannerMatchUntilEscByte(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilEscByte(tc.when[0], tc.when[1]), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilEscByte(tc.when[0], tc.when[1]), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -764,8 +764,8 @@ func TestScannerMatchUntilEscRune(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchUntilEscRune(tc.when[0], tc.when[1]), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchUntilEscRune(tc.when[0], tc.when[1]), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -798,8 +798,8 @@ func TestScannerMatchWhileByteBy(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchWhileByteBy(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchWhileByteBy(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -831,8 +831,8 @@ func TestScannerMatchWhileRuneBy(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchWhileRuneBy(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchWhileRuneBy(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -864,8 +864,8 @@ func TestScannerMatchWhileAnyByte4(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchWhileAnyByte4('a', 'b', 'c', 'd'), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchWhileAnyByte4('a', 'b', 'c', 'd'), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -893,8 +893,8 @@ func TestScannerMatchWhileByteLTE(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.MatchWhileByteLTE(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.MatchWhileByteLTE(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -922,7 +922,7 @@ func TestScannerToken(t *testing.T) {
 		s := Scanner(tc.give)
 		m := s.Mark()
 		s.Advance(len(s))
-		assert.Equal(t, tc.then, s.Token(m), tc)
+		assertEqual(t, tc.then, s.Token(m), tc)
 	}
 }
 
@@ -950,8 +950,8 @@ func TestScannerTokenByteBy(t *testing.T) {
 	}
 	for _, tc := range tt {
 		s := Scanner(tc.give)
-		assert.Equal(t, tc.then, s.TokenByteBy(tc.when), tc)
-		assert.Equal(t, tc.exp, s.String(), tc)
+		assertEqual(t, tc.then, s.TokenByteBy(tc.when), tc)
+		assertEqual(t, tc.exp, s.String(), tc)
 	}
 }
 
@@ -981,8 +981,8 @@ func TestScannerTokenRuneBy(t *testing.T) {
 	}
 	for _, tc := range tt {
 		s := Scanner(tc.give)
-		assert.Equal(t, tc.then, s.TokenRuneBy(tc.when), tc)
-		assert.Equal(t, tc.exp, s.String(), tc)
+		assertEqual(t, tc.then, s.TokenRuneBy(tc.when), tc)
+		assertEqual(t, tc.exp, s.String(), tc)
 	}
 }
 
@@ -1011,8 +1011,8 @@ func TestScannerTokenFor(t *testing.T) {
 		f := func() bool {
 			return s.MatchByte('a')
 		}
-		assert.Equal(t, tc.then, s.TokenFor(f), tc)
-		assert.Equal(t, tc.exp, s.String(), tc)
+		assertEqual(t, tc.then, s.TokenFor(f), tc)
+		assertEqual(t, tc.exp, s.String(), tc)
 	}
 }
 
@@ -1040,8 +1040,8 @@ func TestScannerTokenWith(t *testing.T) {
 	}
 	for _, tc := range tt {
 		s := Scanner(tc.give)
-		assert.Equal(t, tc.then, s.TokenWith(f), tc)
-		assert.Equal(t, tc.exp, s.String(), tc)
+		assertEqual(t, tc.then, s.TokenWith(f), tc)
+		assertEqual(t, tc.exp, s.String(), tc)
 	}
 }
 
@@ -1063,11 +1063,11 @@ func BenchmarkScannerTokenWith(b *testing.B) {
 func TestScannerNext(t *testing.T) {
 	s := Scanner(`abc`)
 	s.Next()
-	assert.Equal(t, `bc`, s.String())
+	assertEqual(t, `bc`, s.String())
 	s.Next()
-	assert.Equal(t, `c`, s.String())
+	assertEqual(t, `c`, s.String())
 	s.Next()
-	assert.Equal(t, ``, s.String())
+	assertEqual(t, ``, s.String())
 }
 
 func BenchmarkScannerNext(b *testing.B) {
@@ -1081,9 +1081,9 @@ func BenchmarkScannerNext(b *testing.B) {
 func TestScannerNextRune(t *testing.T) {
 	s := Scanner(`世界`)
 	s.NextRune()
-	assert.Equal(t, `界`, s.String())
+	assertEqual(t, `界`, s.String())
 	s.NextRune()
-	assert.Equal(t, ``, s.String())
+	assertEqual(t, ``, s.String())
 }
 
 func BenchmarkScannerNextRune(b *testing.B) {
@@ -1097,9 +1097,9 @@ func BenchmarkScannerNextRune(b *testing.B) {
 func TestScannerAdvance(t *testing.T) {
 	s := Scanner(`abc`)
 	s.Advance(1)
-	assert.Equal(t, `bc`, s.String())
+	assertEqual(t, `bc`, s.String())
 	s.Advance(2)
-	assert.Equal(t, ``, s.String())
+	assertEqual(t, ``, s.String())
 }
 
 func BenchmarkScannerAdvance(b *testing.B) {
@@ -1114,8 +1114,8 @@ func TestScannerMark(t *testing.T) {
 	s := Scanner(`abc`)
 	m := s.Mark()
 	s.Next()
-	assert.Equal(t, `bc`, s.String())
-	assert.Equal(t, `abc`, m.String())
+	assertEqual(t, `bc`, s.String())
+	assertEqual(t, `abc`, m.String())
 }
 
 func BenchmarkScannerMark(b *testing.B) {
@@ -1131,7 +1131,7 @@ func TestScannerBack(t *testing.T) {
 	m := s.Mark()
 	s.Next()
 	s.Back(m)
-	assert.Equal(t, `abc`, s.String())
+	assertEqual(t, `abc`, s.String())
 }
 
 func BenchmarkScannerBack(b *testing.B) {
@@ -1152,7 +1152,7 @@ func TestScannerMore(t *testing.T) {
 	}
 	for _, tc := range tt {
 		s := Scanner(tc.give)
-		assert.Equal(t, tc.then, s.More(), tc)
+		assertEqual(t, tc.then, s.More(), tc)
 	}
 }
 
@@ -1170,9 +1170,9 @@ func BenchmarkScannerMore(b *testing.B) {
 
 func TestScannerCurr(t *testing.T) {
 	s := Scanner(`abc`)
-	assert.Equal(t, byte('a'), s.Curr())
+	assertEqual(t, byte('a'), s.Curr())
 	s.Next()
-	assert.Equal(t, byte('b'), s.Curr())
+	assertEqual(t, byte('b'), s.Curr())
 }
 
 func BenchmarkScannerCurr(b *testing.B) {
@@ -1185,9 +1185,9 @@ func BenchmarkScannerCurr(b *testing.B) {
 
 func TestScannerCurrRune(t *testing.T) {
 	s := Scanner(`世界`)
-	assert.Equal(t, '世', s.CurrRune())
+	assertEqual(t, '世', s.CurrRune())
 	s.Advance(len("世"))
-	assert.Equal(t, '界', s.CurrRune())
+	assertEqual(t, '界', s.CurrRune())
 }
 
 func BenchmarkScannerCurrRune(b *testing.B) {
@@ -1200,8 +1200,8 @@ func BenchmarkScannerCurrRune(b *testing.B) {
 
 func TestScannerString(t *testing.T) {
 	s := Scanner(`abc`)
-	assert.Equal(t, `abc`, s.String())
-	assert.Equal(t, 3, len(s.String()))
+	assertEqual(t, `abc`, s.String())
+	assertEqual(t, 3, len(s.String()))
 }
 
 func BenchmarkScannerString(b *testing.B) {
@@ -1214,9 +1214,9 @@ func BenchmarkScannerString(b *testing.B) {
 
 func TestScannerBytes(t *testing.T) {
 	s := Scanner(`abc`)
-	assert.Equal(t, []byte{'a', 'b', 'c'}, s.Bytes())
-	assert.Equal(t, 3, len(s.Bytes()))
-	assert.Equal(t, 32, cap(s.Bytes()))
+	assertEqual(t, []byte{'a', 'b', 'c'}, s.Bytes())
+	assertEqual(t, 3, len(s.Bytes()))
+	assertEqual(t, 32, cap(s.Bytes()))
 }
 
 func BenchmarkScannerBytes(b *testing.B) {
@@ -1247,8 +1247,8 @@ func TestScannerUtilMatchString(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.UtilMatchString(tc.when), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.UtilMatchString(tc.when), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -1279,8 +1279,8 @@ func TestScannerUtilMatchOpenCloseCount(t *testing.T) {
 	for _, tc := range tt {
 		s := Scanner(tc.give)
 		m := s.Mark()
-		assert.Equal(t, tc.then, s.UtilMatchOpenCloseCount('{', '}', '"'), tc)
-		assert.Equal(t, tc.exp, s.Token(m), tc)
+		assertEqual(t, tc.then, s.UtilMatchOpenCloseCount('{', '}', '"'), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
 	}
 }
 
@@ -1293,3 +1293,10 @@ func BenchmarkScannerUtilMatchOpenCloseCount(b *testing.B) {
 }
 
 // #endregion Utils
+
+func assertEqual(t *testing.T, exp, got any, msgs ...any) {
+	t.Helper()
+	if !reflect.DeepEqual(exp, got) {
+		t.Errorf("\nExp:\n%v\nGot:\n%v\nMsg: %v", exp, got, fmt.Sprint(msgs...))
+	}
+}
