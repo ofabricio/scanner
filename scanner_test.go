@@ -1292,6 +1292,28 @@ func BenchmarkScannerUtilMatchOpenCloseCount(b *testing.B) {
 	}
 }
 
+func TestScannerSkipWS(t *testing.T) {
+	tt := []struct {
+		give string
+		then string
+	}{
+		{give: "\t \r\n.", then: `.`},
+	}
+	for _, tc := range tt {
+		s := Scanner(tc.give)
+		s.WS()
+		assertEqual(t, tc.then, s.String(), tc)
+	}
+}
+
+func BenchmarkScannerSkipWS(b *testing.B) {
+	x := Scanner(`    .`)
+	for i := 0; i < b.N; i++ {
+		s := x
+		s.WS()
+	}
+}
+
 // #endregion Utils
 
 func assertEqual(t *testing.T, exp, got any, msgs ...any) {

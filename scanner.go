@@ -374,6 +374,16 @@ func (s *Scanner) MatchWhileAnyByte4(a, b, c, d byte) bool {
 	return false
 }
 
+// WS skips whitespaces. Always returns true.
+func (s *Scanner) WS() bool {
+	ss := *s
+	for len(ss) > 0 && ss[0] <= ' ' {
+		ss = ss[1:]
+	}
+	*s = ss
+	return true
+}
+
 // MatchWhileByteLTE matches while the current byte is less than or equal to a.
 func (s *Scanner) MatchWhileByteLTE(a byte) bool {
 	i := 0
