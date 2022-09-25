@@ -1238,6 +1238,7 @@ func TestScannerUtilMatchString(t *testing.T) {
 		then bool
 		exp  string
 	}{
+		{give: `"`, when: '"', then: false, exp: ``},
 		{give: `""`, when: '"', then: true, exp: `""`},
 		{give: `"a"`, when: '"', then: true, exp: `"a"`},
 		{give: `"ab"`, when: '"', then: true, exp: `"ab"`},
