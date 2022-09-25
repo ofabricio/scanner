@@ -588,4 +588,58 @@ func (s *Scanner) UtilMatchOpenCloseCount(open, clos, quote byte) bool {
 	return false
 }
 
+// UtilMatchNumber matches a JSON number.
+// Integer, fraction and exponent.
+func (s *Scanner) UtilMatchNumber() bool {
+	ss := *s
+	if len(ss) == 0 {
+		return false
+	}
+	i := 0
+	// Sign.
+	if ss[i] == '-' {
+		if i++; i == len(ss) || ss[i] < '0' || ss[i] > '9' {
+			return false
+		}
+	}
+	// Int.
+	if ss[i] == '0' {
+		if i++; i < len(ss) && ss[i] >= '0' && ss[i] <= '9' {
+			return false
+		}
+	} else {
+		for i < len(ss) && ss[i] >= '0' && ss[i] <= '9' {
+			i++
+		}
+	}
+	// Fraction.
+	if i < len(ss) && ss[i] == '.' {
+		if i++; i == len(ss) || ss[i] < '0' || ss[i] > '9' {
+			return false
+		}
+		for i++; i < len(ss) && ss[i] >= '0' && ss[i] <= '9'; {
+			i++
+		}
+	}
+	// Exponent.
+	if i < len(ss) && (ss[i] == 'e' || ss[i] == 'E') {
+		if i++; i == len(ss) {
+			return false
+		}
+		if ss[i] == '+' || ss[i] == '-' {
+			if i++; i == len(ss) {
+				return false
+			}
+		}
+		if ss[i] < '0' || ss[i] > '9' {
+			return false
+		}
+		for i++; i < len(ss) && ss[i] >= '0' && ss[i] <= '9'; {
+			i++
+		}
+	}
+	*s = ss[i:]
+	return i != 0
+}
+
 // #endregion Utils

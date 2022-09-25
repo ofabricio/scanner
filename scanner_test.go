@@ -1293,6 +1293,65 @@ func BenchmarkScannerUtilMatchOpenCloseCount(b *testing.B) {
 	}
 }
 
+func TestScannerUtilMatchNumber(t *testing.T) {
+	tt := []struct {
+		give string
+		then bool
+		exp  string
+	}{
+		{give: `12.01e?12`, then: false, exp: ``},
+		{give: `-012.01e-12`, then: false, exp: ``},
+		{give: `-12.01e-12`, then: true, exp: `-12.01e-12`},
+		{give: `1E`, then: false, exp: ``},
+		{give: `1E+`, then: false, exp: ``},
+		{give: `1E-`, then: false, exp: ``},
+		{give: `1E-2`, then: true, exp: `1E-2`},
+		{give: `1E+2`, then: true, exp: `1E+2`},
+		{give: `1E2`, then: true, exp: `1E2`},
+		{give: `1e2`, then: true, exp: `1e2`},
+		{give: `12.01e+`, then: false, exp: ``},
+		{give: `12.01e-`, then: false, exp: ``},
+		{give: `12.01e-12`, then: true, exp: `12.01e-12`},
+		{give: `12.01e+12`, then: true, exp: `12.01e+12`},
+		{give: `12.01E+12`, then: true, exp: `12.01E+12`},
+		{give: `12.01E-12`, then: true, exp: `12.01E-12`},
+		{give: `12.01ex`, then: false, exp: ``},
+		{give: `12.01e`, then: false, exp: ``},
+		{give: `12.01E12`, then: true, exp: `12.01E12`},
+		{give: `12.01e12`, then: true, exp: `12.01e12`},
+		{give: `-1.0`, then: true, exp: `-1.0`},
+		{give: `10.0`, then: true, exp: `10.0`},
+		{give: `1.012`, then: true, exp: `1.012`},
+		{give: `1.x`, then: false, exp: ``},
+		{give: `1.`, then: false, exp: ``},
+		{give: `1.0`, then: true, exp: `1.0`},
+		{give: `-123`, then: true, exp: `-123`},
+		{give: `123`, then: true, exp: `123`},
+		{give: `-`, then: false, exp: ``},
+		{give: `-0`, then: true, exp: `-0`},
+		{give: `+0`, then: false, exp: ``},
+		{give: `-01`, then: false, exp: ``},
+		{give: `01`, then: false, exp: ``},
+		{give: `00`, then: false, exp: ``},
+		{give: `0`, then: true, exp: `0`},
+		{give: ``, then: false, exp: ``},
+	}
+	for _, tc := range tt {
+		s := Scanner(tc.give)
+		m := s.Mark()
+		assertEqual(t, tc.then, s.UtilMatchNumber(), tc)
+		assertEqual(t, tc.exp, s.Token(m), tc)
+	}
+}
+
+func BenchmarkScannerUtilMatchNumber(b *testing.B) {
+	x := Scanner(`1.2e+3`)
+	for i := 0; i < b.N; i++ {
+		s := x
+		s.UtilMatchNumber()
+	}
+}
+
 func TestScannerSkipWS(t *testing.T) {
 	tt := []struct {
 		give string

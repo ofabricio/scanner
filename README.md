@@ -122,5 +122,5 @@ func (j *Json) MatchString() bool {
 - [x] UtilMatchOpenCloseCount(o, c byte) bool
 - [ ] UtilMatchInteger() bool
 - [ ] UtilMatchFloat() bool
-- [ ] UtilMatchNumber() bool
+- [x] UtilMatchNumber() bool
 - [ ] UtilMatchHex() bool
