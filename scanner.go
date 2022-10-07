@@ -477,7 +477,9 @@ func (s *Scanner) TokenWith(f func(*Scanner) bool) string {
 
 // Next moves to the next byte.
 func (s *Scanner) Next() {
-	*s = (*s)[1:]
+	if len(*s) > 0 {
+		*s = (*s)[1:]
+	}
 }
 
 // Next moves to the next rune.
